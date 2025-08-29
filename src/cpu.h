@@ -26,9 +26,9 @@ typedef struct cpu {
     // Registers
     uint16_t PC; // Program Counter
     ubyte SP; // Stack Pointer
-    byte A; // Accumulator
-    byte X; // Index Register
-    byte Y; // Index Register
+    ubyte A; // Accumulator
+    ubyte X; // Index Register
+    ubyte Y; // Index Register
 
     //Flags (Processor Status(P))
     bool C; // Carry
@@ -47,8 +47,8 @@ typedef struct cpu {
     ubyte table_instructions_sizes[256];
     ubyte table_instructions_modes[256];
 
-    byte (*read)(uint16_t address, console_t *console);
-    void (*write)(uint16_t address, byte data, console_t *console);
+    ubyte (*read)(uint16_t address, console_t *console);
+    void (*write)(uint16_t address, ubyte data, console_t *console);
 } cpu_t;
 
 void init_cpu(cpu_t *cpu);

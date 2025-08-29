@@ -188,6 +188,8 @@ void run_instructions(cpu_t *cpu){
     printf("register-Y: %#X\n", cpu->Y);
     printf("register(flag)-Z: %#X\n", cpu->Z);
     printf("register(flag)-N: %#X\n", cpu->N);
+    printf("register(flag)-C: %#X\n", cpu->C);
+    printf("register(flag)-V: %#X\n", cpu->V);
 
     cpu->PC += cpu->table_instructions_sizes[opcode];
 }
@@ -209,7 +211,7 @@ void lda(cpu_t *cpu){
     cpu->A = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void sta(cpu_t *cpu){
@@ -217,7 +219,7 @@ void sta(cpu_t *cpu){
     cpu->write(cpu->address, cpu->A, cpu->console);
 
     cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void ldx(cpu_t *cpu){
@@ -225,7 +227,7 @@ void ldx(cpu_t *cpu){
     cpu->X = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->X == 0;
-    cpu->N = cpu->X < 0;
+    cpu->N = cpu->X >> 7;
 }
 
 void stx(cpu_t *cpu){
@@ -233,7 +235,7 @@ void stx(cpu_t *cpu){
     cpu->write(cpu->address, cpu->X, cpu->console);
 
     cpu->Z = cpu->X == 0;
-    cpu->N = cpu->X < 0;
+    cpu->N = cpu->X >> 7;
 }
 
 void ldy(cpu_t *cpu){
@@ -241,7 +243,7 @@ void ldy(cpu_t *cpu){
     cpu->Y = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->Y == 0;
-    cpu->N = cpu->Y < 0;
+    cpu->N = cpu->Y >> 7;
 }
 
 void sty(cpu_t *cpu){
@@ -249,7 +251,7 @@ void sty(cpu_t *cpu){
     cpu->write(cpu->address, cpu->Y, cpu->console);
 
     cpu->Z = cpu->Y == 0;
-    cpu->N = cpu->Y < 0;
+    cpu->N = cpu->Y >> 7;
 }
 
 // -----------------------------
@@ -261,7 +263,7 @@ void tax(cpu_t *cpu){
     cpu->X = cpu->A;
 
     cpu->Z = cpu->X == 0;
-    cpu->N = cpu->X < 0;
+    cpu->N = cpu->X >> 7;
 }
 
 void txa(cpu_t *cpu){
@@ -269,7 +271,7 @@ void txa(cpu_t *cpu){
     cpu->A = cpu->X;
 
     cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void tay(cpu_t *cpu){
@@ -277,7 +279,7 @@ void tay(cpu_t *cpu){
     cpu->Y = cpu->A;
 
     cpu->Z = cpu->Y == 0;
-    cpu->N = cpu->Y < 0;
+    cpu->N = cpu->Y >> 7;
 }
 
 void tya(cpu_t *cpu){
@@ -285,7 +287,7 @@ void tya(cpu_t *cpu){
     cpu->A = cpu->Y;
 
     cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->N = cpu->A >> 7;
 }
 
 // -----------------------------
