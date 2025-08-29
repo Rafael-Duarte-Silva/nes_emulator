@@ -295,35 +295,79 @@ void tya(cpu_t *cpu){
 // -----------------------------
 
 void adc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("ADC\n");
+    int16_t result = cpu->A + cpu->read(cpu->address, cpu->console) + cpu->C;
+    cpu->C = result > 0xFF;
+    cpu->V = (result ^ cpu->A) & (result ^ cpu->read(cpu->address, cpu->console)) & 0x80;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->A = result;
 }
 
 void sbc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("SBC\n");
+    int16_t result = cpu->A - cpu->read(cpu->address, cpu->console) - !cpu->C;
+    cpu->C = !(result < 0);
+    cpu->V = (result ^ cpu->A) & (result ^ ~cpu->read(cpu->address, cpu->console)) & 0x80;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->A = result;
 }
 
 void inc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("INC\n");
+    int16_t result = cpu->read(cpu->address, cpu->console) + 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 void dec(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("DEC\n");
+    int16_t result = cpu->read(cpu->address, cpu->console) - 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 void inx(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("INX\n");
+    int16_t result = cpu->X + 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->X = result;
 }
 
 void dex(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("DEX\n");
+    int16_t result = cpu->X - 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->X = result;
 }
 
 void iny(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("INY\n");
+    int16_t result = cpu->Y + 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->Y = result;
 }
 
 void dey(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("DEY\n");
+    int16_t result = cpu->Y - 1;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    cpu->Y = result;
 }
 
 // -----------------------------
