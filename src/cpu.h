@@ -22,7 +22,7 @@ typedef enum {
     ZERO_PAGE_Y,
 } modes_t;
 
-typedef struct {
+typedef struct cpu {
     // Registers
     uint16_t PC; // Program Counter
     ubyte SP; // Stack Pointer
@@ -42,8 +42,11 @@ typedef struct {
     console_t *console;
     uint16_t address;
     modes_t mode;
+
+    void (*table_instructions[256])(struct cpu *cpu);
     ubyte table_instructions_sizes[256];
     ubyte table_instructions_modes[256];
+
     byte (*read)(uint16_t address, console_t *console);
     void (*write)(uint16_t address, byte data, console_t *console);
 } cpu_t;
@@ -52,9 +55,120 @@ void init_cpu(cpu_t *cpu);
 void run_instructions(cpu_t *cpu);
 void reset(cpu_t *cpu);
 
+// -----------------------------
+// COMMON
+// -----------------------------
+
 uint16_t read_address(cpu_t *cpu, uint16_t address);
 
+// -----------------------------
+// ACESS
+// -----------------------------
+
 void lda(cpu_t *cpu);
+void sta(cpu_t *cpu);
+void ldx(cpu_t *cpu);
+void stx(cpu_t *cpu);
+void ldy(cpu_t *cpu);
+void sty(cpu_t *cpu);
+
+// -----------------------------
+// TRANSFER
+// -----------------------------
+
+void tax(cpu_t *cpu);
+void txa(cpu_t *cpu);
+void tay(cpu_t *cpu);
+void tya(cpu_t *cpu);
+
+// -----------------------------
+// ARITHMETIC
+// -----------------------------
+
+void adc(cpu_t *cpu);
+void sbc(cpu_t *cpu);
+void inc(cpu_t *cpu);
+void dec(cpu_t *cpu);
+void inx(cpu_t *cpu);
+void dex(cpu_t *cpu);
+void iny(cpu_t *cpu);
+void dey(cpu_t *cpu);
+
+// -----------------------------
+// SHIFT
+// -----------------------------
+
+void asl(cpu_t *cpu);
+void lsr(cpu_t *cpu);
+void rol(cpu_t *cpu);
+void ror(cpu_t *cpu);
+
+// -----------------------------
+// BITWISE
+// -----------------------------
+
+void and(cpu_t *cpu);
+void ora(cpu_t *cpu);
+void eor(cpu_t *cpu);
+void bit(cpu_t *cpu);
+
+// -----------------------------
+// COMPARE
+// -----------------------------
+
+void cmp(cpu_t *cpu);
+void cpx(cpu_t *cpu);
+void cpy(cpu_t *cpu);
+
+// -----------------------------
+// BRANCH
+// -----------------------------
+
+void bcc(cpu_t *cpu);
+void bcs(cpu_t *cpu);
+void beq(cpu_t *cpu);
+void bne(cpu_t *cpu);
+void bpl(cpu_t *cpu);
+void bmi(cpu_t *cpu);
+void bvc(cpu_t *cpu);
+void bvs(cpu_t *cpu);
+
+// -----------------------------
+// JUMP
+// -----------------------------
+
+void jmp(cpu_t *cpu);
+void jsr(cpu_t *cpu);
+void rts(cpu_t *cpu);
+void brk(cpu_t *cpu);
+void rti(cpu_t *cpu);
+
+// -----------------------------
+// STACK
+// -----------------------------
+
+void pha(cpu_t *cpu);
+void pla(cpu_t *cpu);
+void php(cpu_t *cpu);
+void plp(cpu_t *cpu);
+void txs(cpu_t *cpu);
+void tsx(cpu_t *cpu);
+
+// -----------------------------
+// FLAGS
+// -----------------------------
+
+void clc(cpu_t *cpu);
+void sec(cpu_t *cpu);
+void cli(cpu_t *cpu);
+void sei(cpu_t *cpu);
+void cld(cpu_t *cpu);
+void sed(cpu_t *cpu);
+void clv(cpu_t *cpu);
+
+// -----------------------------
+// ORTHER
+// -----------------------------
 
 void nop(cpu_t *cpu);
 

@@ -4,6 +4,42 @@
 #include "string.h"
 
 void init_cpu(cpu_t *cpu){
+    void (*instructions[256])(struct cpu *cpu) = {
+		brk, ora, NULL, NULL, nop, ora, asl, NULL,
+		php, ora, asl, NULL, nop, ora, asl, NULL,
+		bpl, ora, NULL, NULL, nop, ora, asl, NULL,
+		clc, ora, nop, NULL, nop, ora, asl, NULL,
+		jsr, and, NULL, NULL, bit, and, rol, NULL,
+		plp, and, rol, NULL, bit, and, rol, NULL,
+		bmi, and, NULL, NULL, nop, and, rol, NULL,
+		sec, and, nop, NULL, nop, and, rol, NULL,
+		rti, eor, NULL, NULL, nop, eor, lsr, NULL,
+		pha, eor, lsr, NULL, jmp, eor, lsr, NULL,
+		bvc, eor, NULL, NULL, nop, eor, lsr, NULL,
+		cli, eor, nop, NULL, nop, eor, lsr, NULL,
+		rts, adc, NULL, NULL, nop, adc, ror, NULL,
+		pla, adc, ror, NULL, jmp, adc, ror, NULL,
+		bvs, adc, NULL, NULL, nop, adc, ror, NULL,
+		sei, adc, nop, NULL, nop, adc, ror, NULL,
+		nop, sta, nop, NULL, sty, sta, stx, NULL,
+		dey, nop, txa, NULL, sty, sta, stx, NULL,
+		bcc, sta, NULL, NULL, sty, sta, stx, NULL,
+		tya, sta, txs, NULL, NULL, sta, NULL, NULL,
+		ldy, lda, ldx, NULL, ldy, lda, ldx, NULL,
+		tay, lda, tax, NULL, ldy, lda, ldx, NULL,
+		bcs, lda, NULL, NULL, ldy, lda, ldx, NULL,
+		clv, lda, tsx, NULL, ldy, lda, ldx, NULL,
+		cpy, cmp, nop, NULL, cpy, cmp, dec, NULL,
+		iny, cmp, dex, NULL, cpy, cmp, dec, NULL,
+		bne, cmp, NULL, NULL, nop, cmp, dec, NULL,
+		cld, cmp, nop, NULL, nop, cmp, dec, NULL,
+		cpx, sbc, nop, NULL, cpx, sbc, inc, NULL,
+		inx, sbc, nop, sbc, cpx, sbc, inc, NULL,
+		beq, sbc, NULL, NULL, nop, sbc, inc, NULL,
+		sed, sbc, nop, NULL, nop, sbc, inc, NULL,
+	};
+    memcpy(cpu->table_instructions, instructions, 256);
+
     ubyte instructions_sizes[256] = {
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
         2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
@@ -140,6 +176,258 @@ uint16_t read_address(cpu_t *cpu, uint16_t address){
 
 void lda(cpu_t *cpu){
     cpu->A = cpu->read(cpu->address, cpu->console);
+}
+
+void sta(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void ldx(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void stx(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void ldy(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void sty(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// TRANSFER
+// -----------------------------
+
+void tax(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void txa(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void tay(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void tya(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// ARITHMETIC
+// -----------------------------
+
+void adc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void sbc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void inc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void dec(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void inx(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void dex(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void iny(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void dey(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// SHIFT
+// -----------------------------
+
+void asl(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void lsr(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void rol(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void ror(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// BITWISE
+// -----------------------------
+
+void and(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void ora(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void eor(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bit(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// COMPARE
+// -----------------------------
+
+void cmp(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void cpx(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void cpy(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// BRANCH
+// -----------------------------
+
+void bcc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bcs(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void beq(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bne(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bpl(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bmi(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bvc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void bvs(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// JUMP
+// -----------------------------
+
+void jmp(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void jsr(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void rts(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void brk(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void rti(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// STACK
+// -----------------------------
+
+void pha(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void pla(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void php(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void plp(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void txs(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void tsx(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+// -----------------------------
+// FLAGS
+// -----------------------------
+
+void clc(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void sec(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void cli(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void sei(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void cld(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void sed(cpu_t *cpu){
+    // NOT IMPLEMENTED
+}
+
+void clv(cpu_t *cpu){
+    // NOT IMPLEMENTED
 }
 
 // -----------------------------
