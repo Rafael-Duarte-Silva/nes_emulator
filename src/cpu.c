@@ -499,15 +499,30 @@ void bit(cpu_t *cpu){
 // -----------------------------
 
 void cmp(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CMP\n");
+    ubyte result = cpu->A - cpu->read(cpu->address, cpu->console);
+    
+    cpu->C = cpu->A >= cpu->read(cpu->address, cpu->console);
+    cpu->Z = cpu->A == cpu->read(cpu->address, cpu->console);
+    cpu->N = result >> 7;
 }
 
 void cpx(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CPX\n");
+    ubyte result = cpu->X - cpu->read(cpu->address, cpu->console);
+    
+    cpu->C = cpu->X >= cpu->read(cpu->address, cpu->console);
+    cpu->Z = cpu->X == cpu->read(cpu->address, cpu->console);
+    cpu->N = result >> 7;
 }
 
 void cpy(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CPY\n");
+    ubyte result = cpu->Y - cpu->read(cpu->address, cpu->console);
+    
+    cpu->C = cpu->Y >= cpu->read(cpu->address, cpu->console);
+    cpu->Z = cpu->Y == cpu->read(cpu->address, cpu->console);
+    cpu->N = result >> 7;
 }
 
 // -----------------------------
