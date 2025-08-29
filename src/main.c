@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     console_t console = {0};
     init_console(&console, &cpu, argv[1]);
 
-    execute(&cpu);
+    run_instructions(&cpu);
 
     return 0;
 }

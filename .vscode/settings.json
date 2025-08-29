@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "cstdlib": "c",
-        "types.h": "c"
+        "types.h": "c",
+        "cpu.h": "c",
+        "stdio.h": "c",
+        "string.h": "c",
+        "bus.h": "c"
     }
 }

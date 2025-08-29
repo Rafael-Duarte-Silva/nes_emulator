@@ -24,9 +24,19 @@ typedef struct {
     bool N; // Negative
 
     console_t *console;
+    uint16_t address;
+    ubyte table_instructions_sizes[256];
+    ubyte table_instructions_modes[256];
+    byte (*bus_read)(uint16_t address, console_t *console);
+    void (*bus_write)(uint16_t address, byte data, console_t *console);
 } cpu_t;
 
 void init_cpu(cpu_t *cpu);
-void execute(cpu_t *cpu);
+void run_instructions(cpu_t *cpu);
+void reset(cpu_t *cpu);
+
+void lda(cpu_t *cpu);
+
+void nop(cpu_t *cpu);
 
 #endif

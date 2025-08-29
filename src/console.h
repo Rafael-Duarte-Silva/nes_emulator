@@ -5,6 +5,8 @@
 #include "cpu.h"
 
 typedef struct console {
+    byte RAM[0x0800];
+    
     cpu_t *CPU;
 } console_t;
 
