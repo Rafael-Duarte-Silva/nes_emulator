@@ -16,10 +16,10 @@ void init_console(console_t *console, cpu_t *cpu, const char rom_name[]){
     
     printf("rom_name: %s, rom_size: %ld\n", rom_name, rom_size);
 
-    /*if (fread(&console->RAM, rom_size, 1, rom) != 1) {
+    if (fread(&console->RAM, rom_size, 1, rom) != 1) {
         perror("Could not read Rom file into CHIP8 memory\n");
         return;
-    }*/
+    }
     fclose(rom);
 
     console->CPU = cpu;

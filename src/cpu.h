@@ -7,7 +7,7 @@
 typedef struct console console_t;
 
 typedef enum {
-    ABSOLUTE,
+    ABSOLUTE = 1,
     ABSOLUTE_X,
     ABSOLUTE_Y,
     ACCUMULATOR,

@@ -4,7 +4,7 @@
 #include "string.h"
 
 void init_cpu(cpu_t *cpu){
-    void (*instructions[256])(struct cpu *cpu) = {
+    void (*instructions[256])(cpu_t *cpu) = {
 		brk, ora, NULL, NULL, nop, ora, asl, NULL,
 		php, ora, asl, NULL, nop, ora, asl, NULL,
 		bpl, ora, NULL, NULL, nop, ora, asl, NULL,
@@ -38,7 +38,7 @@ void init_cpu(cpu_t *cpu){
 		beq, sbc, NULL, NULL, nop, sbc, inc, NULL,
 		sed, sbc, nop, NULL, nop, sbc, inc, NULL,
 	};
-    memcpy(cpu->table_instructions, instructions, 256);
+    memcpy(cpu->table_instructions, instructions, sizeof(instructions));
 
     ubyte instructions_sizes[256] = {
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
@@ -58,7 +58,7 @@ void init_cpu(cpu_t *cpu){
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
         2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
     };
-    memcpy(cpu->table_instructions_sizes, instructions_sizes, 256);
+    memcpy(cpu->table_instructions_sizes, instructions_sizes, sizeof(instructions_sizes));
 
     ubyte instructions_modes[256] = {
         6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
@@ -78,7 +78,7 @@ void init_cpu(cpu_t *cpu){
         5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
         10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
     };
-    memcpy(cpu->table_instructions_modes, instructions_modes, 256);
+    memcpy(cpu->table_instructions_modes, instructions_modes, sizeof(instructions_modes));
 
     cpu->read = bus_read;
     cpu->write = bus_write;
@@ -86,7 +86,8 @@ void init_cpu(cpu_t *cpu){
 }
 
 void reset(cpu_t *cpu){
-    cpu->PC = read_address(cpu, 0xFFFC);
+    cpu->PC = 0x00;
+    //cpu->PC = read_address(cpu, 0xFFFC);
     cpu->SP = 0xFD;
 
     cpu->C = false;
@@ -102,62 +103,89 @@ void run_instructions(cpu_t *cpu){
     ubyte opcode = cpu->read(cpu->PC, cpu->console);
     cpu->mode = cpu->table_instructions_modes[opcode];
 
+    printf("opcode: %#X\n", opcode);
+
     switch (cpu->mode)
     {
         case ABSOLUTE:
+            printf("ABSOLUTE\n");
             cpu->address = read_address(cpu, cpu->PC  + 1);
             break;
         case ABSOLUTE_X:
+            printf("ABSOLUTE_X\n");
             cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->X;
             break;
 
         case ABSOLUTE_Y:
+            printf("ABSOLUTE_Y\n");
             cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->Y;
             break;
 
         case ACCUMULATOR:
+            printf("ACCUMULATOR\n");
             cpu->address = 0;
             break;
 
         case IMMEDIATE:
+            printf("IMMEDIATE\n");
             cpu->address = cpu->PC + 1;
             break;
 
         case IMPLIED:
+            printf("IMPLIED\n");
             cpu->address = 0;
             break;
 
         case INDEXED_INDIRECT:
+            printf("INDEXED_INDIRECT\n");
             cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console) + cpu->X);
             break;
 
         case INDIRECT:
+            printf("INDIRECT\n");
             cpu->address = read_address(cpu, read_address(cpu, cpu->PC + 1));
             break;
 
         case INDIRECT_INDEXED:
+            printf("INDIRECT_INDEXED\n");
             cpu->address = read_address(cpu, cpu->read(cpu->read(cpu->PC + 1, cpu->console), cpu->console)) + cpu->Y;
             break;
 
         case RELATIVE:
+            printf("RELATIVE\n");
             // NOT IMPLEMENTED
             break;
 
         case ZERO_PAGE:
+            printf("ZERO_PAGE\n");
             cpu->address = cpu->read(cpu->PC + 1, cpu->console);
             break;
 
         case ZERO_PAGE_X:
+            printf("ZERO_PAGE_X\n");
             cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->X;
             break;
 
         case ZERO_PAGE_Y:
+            printf("ZERO_PAGE_Y\n");
             cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->Y;
             break;
         
         default:
             break;
     }
+
+
+    printf("address: %#X\n", cpu->address);
+
+    if(cpu->table_instructions[opcode] != NULL){
+        cpu->table_instructions[opcode](cpu);
+    }
+
+    printf("mem-%d: %#X\n", cpu->address, cpu->read(cpu->address, cpu->console));
+    printf("register-A: %#X\n", cpu->A);
+    printf("register-X: %#X\n", cpu->X);
+    printf("register-Y: %#X\n", cpu->Y);
 
     cpu->PC += cpu->table_instructions_sizes[opcode];
 }
@@ -175,27 +203,33 @@ uint16_t read_address(cpu_t *cpu, uint16_t address){
 // -----------------------------
 
 void lda(cpu_t *cpu){
+    printf("LDA\n");
     cpu->A = cpu->read(cpu->address, cpu->console);
 }
 
 void sta(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("STA\n");
+    cpu->write(cpu->address, cpu->A, cpu->console);
 }
 
 void ldx(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("LDX\n");
+    cpu->X = cpu->read(cpu->address, cpu->console);
 }
 
 void stx(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("STX\n");
+    cpu->write(cpu->address, cpu->X, cpu->console);
 }
 
 void ldy(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("LDY\n");
+    cpu->Y = cpu->read(cpu->address, cpu->console);
 }
 
 void sty(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("STY\n");
+    cpu->write(cpu->address, cpu->Y, cpu->console);
 }
 
 // -----------------------------

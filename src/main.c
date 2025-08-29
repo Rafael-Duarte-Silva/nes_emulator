@@ -11,7 +11,12 @@ int main(int argc, char *argv[]) {
     console_t console = {0};
     init_console(&console, &cpu, argv[1]);
 
-    run_instructions(&cpu);
+    while (1)
+    {
+        printf("\n-------------- STEP --------------\n");
+        getchar();
+        run_instructions(&cpu);
+    }
 
     return 0;
 }
