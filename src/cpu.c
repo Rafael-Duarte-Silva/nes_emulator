@@ -224,32 +224,32 @@ void ldx(cpu_t *cpu){
     printf("LDX\n");
     cpu->X = cpu->read(cpu->address, cpu->console);
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->X == 0;
+    cpu->N = cpu->X < 0;
 }
 
 void stx(cpu_t *cpu){
     printf("STX\n");
     cpu->write(cpu->address, cpu->X, cpu->console);
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->X == 0;
+    cpu->N = cpu->X < 0;
 }
 
 void ldy(cpu_t *cpu){
     printf("LDY\n");
     cpu->Y = cpu->read(cpu->address, cpu->console);
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->Y == 0;
+    cpu->N = cpu->Y < 0;
 }
 
 void sty(cpu_t *cpu){
     printf("STY\n");
     cpu->write(cpu->address, cpu->Y, cpu->console);
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->Y == 0;
+    cpu->N = cpu->Y < 0;
 }
 
 // -----------------------------
@@ -260,8 +260,8 @@ void tax(cpu_t *cpu){
     printf("TAX\n");
     cpu->X = cpu->A;
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->X == 0;
+    cpu->N = cpu->X < 0;
 }
 
 void txa(cpu_t *cpu){
@@ -276,8 +276,8 @@ void tay(cpu_t *cpu){
     printf("TAY\n");
     cpu->Y = cpu->A;
 
-    cpu->Z = cpu->A == 0;
-    cpu->N = cpu->A < 0;
+    cpu->Z = cpu->Y == 0;
+    cpu->N = cpu->Y < 0;
 }
 
 void tya(cpu_t *cpu){

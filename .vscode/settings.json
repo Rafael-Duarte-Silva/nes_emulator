@@ -5,6 +5,7 @@
         "cpu.h": "c",
         "stdio.h": "c",
         "string.h": "c",
-        "bus.h": "c"
+        "bus.h": "c",
+        "type_traits": "c"
     }
 }
