@@ -175,7 +175,6 @@ void run_instructions(cpu_t *cpu){
             break;
     }
 
-
     printf("address: %#X\n", cpu->address);
 
     if(cpu->table_instructions[opcode] != NULL){
@@ -375,19 +374,87 @@ void dey(cpu_t *cpu){
 // -----------------------------
 
 void asl(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("ASL\n");
+
+    if(cpu->mode == ACCUMULATOR){
+        int16_t result = cpu->A << 1;
+        cpu->C = cpu->A >> 7 & 0x01;
+        cpu->Z = result == 0;
+        cpu->N = result >> 7 & 0x1;
+
+        cpu->A = result;
+        return;
+    }
+
+    int16_t result = bus_read(cpu->address, cpu->console) << 1;
+    cpu->C = bus_read(cpu->address, cpu->console) >> 7 & 0x01;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 void lsr(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("LSR\n");
+
+    if(cpu->mode == ACCUMULATOR){
+        int16_t result = cpu->A >> 1;
+        cpu->C = cpu->A & 0x01;
+        cpu->Z = result == 0;
+        cpu->N = 0;
+
+        cpu->A = result;
+        return;
+    }
+
+    int16_t result = bus_read(cpu->address, cpu->console) >> 1;
+    cpu->C = bus_read(cpu->address, cpu->console) & 0x01;
+    cpu->Z = result == 0;
+    cpu->N = 0;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 void rol(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("ROL\n");
+
+    if(cpu->mode == ACCUMULATOR){
+        int16_t result = cpu->A << 1 | cpu->C;
+        cpu->C = cpu->A >> 7 & 0x01;
+        cpu->Z = result == 0;
+        cpu->N = result >> 7 & 0x1;
+
+        cpu->A = result;
+        return;
+    }
+
+    int16_t result = bus_read(cpu->address, cpu->console) << 1 | cpu->C;
+    cpu->C = bus_read(cpu->address, cpu->console) >> 7 & 0x01;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 void ror(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("ROR\n");
+
+    if(cpu->mode == ACCUMULATOR){
+        int16_t result = cpu->A >> 1 | cpu->C;
+        cpu->C = cpu->A & 0x01;
+        cpu->Z = result == 0;
+        cpu->N = result >> 7 & 0x1;
+
+        cpu->A = result;
+        return;
+    }
+
+    int16_t result = bus_read(cpu->address, cpu->console) >> 1 | cpu->C;
+    cpu->C = bus_read(cpu->address, cpu->console) & 0x01;
+    cpu->Z = result == 0;
+    cpu->N = result >> 7 & 0x1;
+
+    bus_write(cpu->address, result, cpu->console);
 }
 
 // -----------------------------
