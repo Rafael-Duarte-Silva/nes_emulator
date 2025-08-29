@@ -321,7 +321,7 @@ void inc(cpu_t *cpu){
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 void dec(cpu_t *cpu){
@@ -330,7 +330,7 @@ void dec(cpu_t *cpu){
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 void inx(cpu_t *cpu){
@@ -386,12 +386,12 @@ void asl(cpu_t *cpu){
         return;
     }
 
-    int16_t result = bus_read(cpu->address, cpu->console) << 1;
-    cpu->C = bus_read(cpu->address, cpu->console) >> 7 & 0x01;
+    int16_t result = cpu->read(cpu->address, cpu->console) << 1;
+    cpu->C = cpu->read(cpu->address, cpu->console) >> 7 & 0x01;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 void lsr(cpu_t *cpu){
@@ -407,12 +407,12 @@ void lsr(cpu_t *cpu){
         return;
     }
 
-    int16_t result = bus_read(cpu->address, cpu->console) >> 1;
-    cpu->C = bus_read(cpu->address, cpu->console) & 0x01;
+    int16_t result = cpu->read(cpu->address, cpu->console) >> 1;
+    cpu->C = cpu->read(cpu->address, cpu->console) & 0x01;
     cpu->Z = result == 0;
     cpu->N = 0;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 void rol(cpu_t *cpu){
@@ -428,12 +428,12 @@ void rol(cpu_t *cpu){
         return;
     }
 
-    int16_t result = bus_read(cpu->address, cpu->console) << 1 | cpu->C;
-    cpu->C = bus_read(cpu->address, cpu->console) >> 7 & 0x01;
+    int16_t result = cpu->read(cpu->address, cpu->console) << 1 | cpu->C;
+    cpu->C = cpu->read(cpu->address, cpu->console) >> 7 & 0x01;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 void ror(cpu_t *cpu){
@@ -449,12 +449,12 @@ void ror(cpu_t *cpu){
         return;
     }
 
-    int16_t result = bus_read(cpu->address, cpu->console) >> 1 | cpu->C;
-    cpu->C = bus_read(cpu->address, cpu->console) & 0x01;
+    int16_t result = cpu->read(cpu->address, cpu->console) >> 1 | cpu->C;
+    cpu->C = cpu->read(cpu->address, cpu->console) & 0x01;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
 
-    bus_write(cpu->address, result, cpu->console);
+    cpu->write(cpu->address, result, cpu->console);
 }
 
 // -----------------------------
@@ -463,7 +463,7 @@ void ror(cpu_t *cpu){
 
 void and(cpu_t *cpu){
     printf("AND\n");
-    cpu->A &= bus_read(cpu->address, cpu->console);
+    cpu->A &= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
     cpu->N = cpu->A >> 7;
@@ -471,7 +471,7 @@ void and(cpu_t *cpu){
 
 void ora(cpu_t *cpu){
     printf("ORA\n");
-    cpu->A |= bus_read(cpu->address, cpu->console);
+    cpu->A |= cpu->read(cpu->address, cpu->console);
     
     cpu->Z = cpu->A == 0;
     cpu->N = cpu->A >> 7;
@@ -479,7 +479,7 @@ void ora(cpu_t *cpu){
 
 void eor(cpu_t *cpu){
     printf("EOR\n");
-    cpu->A ^= bus_read(cpu->address, cpu->console);
+    cpu->A ^= cpu->read(cpu->address, cpu->console);
     
     cpu->Z = cpu->A == 0;
     cpu->N = cpu->A >> 7;
@@ -487,11 +487,11 @@ void eor(cpu_t *cpu){
 
 void bit(cpu_t *cpu){
     printf("BIT\n");
-    ubyte result = cpu->A & bus_read(cpu->address, cpu->console);
+    ubyte result = cpu->A & cpu->read(cpu->address, cpu->console);
     
     cpu->Z = result == 0;
-    cpu->V = bus_read(cpu->address, cpu->console) >> 6 & 0x02;
-    cpu->N = bus_read(cpu->address, cpu->console) >> 7;
+    cpu->V = cpu->read(cpu->address, cpu->console) >> 6 & 0x02;
+    cpu->N = cpu->read(cpu->address, cpu->console) >> 7;
 }
 
 // -----------------------------
