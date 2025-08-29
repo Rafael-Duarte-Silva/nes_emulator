@@ -462,19 +462,36 @@ void ror(cpu_t *cpu){
 // -----------------------------
 
 void and(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("AND\n");
+    cpu->A &= bus_read(cpu->address, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void ora(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("ORA\n");
+    cpu->A |= bus_read(cpu->address, cpu->console);
+    
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void eor(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("EOR\n");
+    cpu->A ^= bus_read(cpu->address, cpu->console);
+    
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A >> 7;
 }
 
 void bit(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BIT\n");
+    ubyte result = cpu->A & bus_read(cpu->address, cpu->console);
+    
+    cpu->Z = result == 0;
+    cpu->V = bus_read(cpu->address, cpu->console) >> 6 & 0x02;
+    cpu->N = bus_read(cpu->address, cpu->console) >> 7;
 }
 
 // -----------------------------
