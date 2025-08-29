@@ -44,13 +44,13 @@ void init_cpu(cpu_t *cpu){
     };
     memcpy(cpu->table_instructions_modes, instructions_modes, 256);
 
-    cpu->bus_read = bus_read;
-    cpu->bus_write = bus_write;
+    cpu->read = bus_read;
+    cpu->write = bus_write;
     reset(cpu);
 }
 
 void reset(cpu_t *cpu){
-    cpu->PC = bus_read(0xFFFC, cpu->console);
+    cpu->PC = read_address(cpu, 0xFFFC);
     cpu->SP = 0xFD;
 
     cpu->C = false;
@@ -63,7 +63,75 @@ void reset(cpu_t *cpu){
 }
 
 void run_instructions(cpu_t *cpu){
-    nop(cpu);
+    ubyte opcode = cpu->read(cpu->PC, cpu->console);
+    cpu->mode = cpu->table_instructions_modes[opcode];
+
+    switch (cpu->mode)
+    {
+        case ABSOLUTE:
+            cpu->address = read_address(cpu, cpu->PC  + 1);
+            break;
+        case ABSOLUTE_X:
+            cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->X;
+            break;
+
+        case ABSOLUTE_Y:
+            cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->Y;
+            break;
+
+        case ACCUMULATOR:
+            cpu->address = 0;
+            break;
+
+        case IMMEDIATE:
+            cpu->address = cpu->PC + 1;
+            break;
+
+        case IMPLIED:
+            cpu->address = 0;
+            break;
+
+        case INDEXED_INDIRECT:
+            cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console) + cpu->X);
+            break;
+
+        case INDIRECT:
+            cpu->address = read_address(cpu, read_address(cpu, cpu->PC + 1));
+            break;
+
+        case INDIRECT_INDEXED:
+            cpu->address = read_address(cpu, cpu->read(cpu->read(cpu->PC + 1, cpu->console), cpu->console)) + cpu->Y;
+            break;
+
+        case RELATIVE:
+            // NOT IMPLEMENTED
+            break;
+
+        case ZERO_PAGE:
+            cpu->address = cpu->read(cpu->PC + 1, cpu->console);
+            break;
+
+        case ZERO_PAGE_X:
+            cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->X;
+            break;
+
+        case ZERO_PAGE_Y:
+            cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->Y;
+            break;
+        
+        default:
+            break;
+    }
+
+    cpu->PC += cpu->table_instructions_sizes[opcode];
+}
+
+// -----------------------------
+// COMMON
+// -----------------------------
+
+uint16_t read_address(cpu_t *cpu, uint16_t address){
+    return cpu->read(address + 1, cpu->console) << 8 | cpu->read(address, cpu->console);
 }
 
 // -----------------------------
@@ -71,7 +139,7 @@ void run_instructions(cpu_t *cpu){
 // -----------------------------
 
 void lda(cpu_t *cpu){
-    cpu->A = cpu->bus_read(cpu->address, cpu->console);
+    cpu->A = cpu->read(cpu->address, cpu->console);
 }
 
 // -----------------------------

@@ -6,6 +6,22 @@
 
 typedef struct console console_t;
 
+typedef enum {
+    ABSOLUTE,
+    ABSOLUTE_X,
+    ABSOLUTE_Y,
+    ACCUMULATOR,
+    IMMEDIATE,
+    IMPLIED,
+    INDEXED_INDIRECT,
+    INDIRECT,
+    INDIRECT_INDEXED,
+    RELATIVE,
+    ZERO_PAGE,
+    ZERO_PAGE_X,
+    ZERO_PAGE_Y,
+} modes_t;
+
 typedef struct {
     // Registers
     uint16_t PC; // Program Counter
@@ -25,15 +41,18 @@ typedef struct {
 
     console_t *console;
     uint16_t address;
+    modes_t mode;
     ubyte table_instructions_sizes[256];
     ubyte table_instructions_modes[256];
-    byte (*bus_read)(uint16_t address, console_t *console);
-    void (*bus_write)(uint16_t address, byte data, console_t *console);
+    byte (*read)(uint16_t address, console_t *console);
+    void (*write)(uint16_t address, byte data, console_t *console);
 } cpu_t;
 
 void init_cpu(cpu_t *cpu);
 void run_instructions(cpu_t *cpu);
 void reset(cpu_t *cpu);
+
+uint16_t read_address(cpu_t *cpu, uint16_t address);
 
 void lda(cpu_t *cpu);
 
