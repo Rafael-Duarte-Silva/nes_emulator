@@ -257,19 +257,35 @@ void sty(cpu_t *cpu){
 // -----------------------------
 
 void tax(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TAX\n");
+    cpu->X = cpu->A;
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void txa(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TXA\n");
+    cpu->A = cpu->X;
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void tay(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TAY\n");
+    cpu->Y = cpu->A;
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void tya(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TYA\n");
+    cpu->A = cpu->Y;
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 // -----------------------------
