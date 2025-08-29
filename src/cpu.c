@@ -186,6 +186,8 @@ void run_instructions(cpu_t *cpu){
     printf("register-A: %#X\n", cpu->A);
     printf("register-X: %#X\n", cpu->X);
     printf("register-Y: %#X\n", cpu->Y);
+    printf("register(flag)-Z: %#X\n", cpu->Z);
+    printf("register(flag)-N: %#X\n", cpu->N);
 
     cpu->PC += cpu->table_instructions_sizes[opcode];
 }
@@ -205,31 +207,49 @@ uint16_t read_address(cpu_t *cpu, uint16_t address){
 void lda(cpu_t *cpu){
     printf("LDA\n");
     cpu->A = cpu->read(cpu->address, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void sta(cpu_t *cpu){
     printf("STA\n");
     cpu->write(cpu->address, cpu->A, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void ldx(cpu_t *cpu){
     printf("LDX\n");
     cpu->X = cpu->read(cpu->address, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void stx(cpu_t *cpu){
     printf("STX\n");
     cpu->write(cpu->address, cpu->X, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void ldy(cpu_t *cpu){
     printf("LDY\n");
     cpu->Y = cpu->read(cpu->address, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 void sty(cpu_t *cpu){
     printf("STY\n");
     cpu->write(cpu->address, cpu->Y, cpu->console);
+
+    cpu->Z = cpu->A == 0;
+    cpu->N = cpu->A < 0;
 }
 
 // -----------------------------
