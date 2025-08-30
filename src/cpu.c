@@ -770,31 +770,40 @@ void tsx(cpu_t *cpu){
 // -----------------------------
 
 void clc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CLC\n");
+    cpu->C = 0;
 }
 
 void sec(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("SEC\n");
+    cpu->C = 1;
 }
 
 void cli(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CLI\n");
+    cpu->temp_I = 0;
+    cpu->delay_I = true;
 }
 
 void sei(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("SEI\n");
+    cpu->temp_I = 1;
+    cpu->delay_I = true;
 }
 
 void cld(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CLD\n");
+    cpu->D = 0;
 }
 
 void sed(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("SED\n");
+    cpu->D = 1;
 }
 
 void clv(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("CLV\n");
+    cpu->V = 1;
 }
 
 // -----------------------------
