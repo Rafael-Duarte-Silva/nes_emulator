@@ -109,16 +109,16 @@ void run_instructions(cpu_t *cpu){
     {
         case ABSOLUTE:
             printf("ABSOLUTE\n");
-            cpu->address = read_address(cpu, cpu->PC  + 1);
+            cpu->address = read_address(cpu, cpu->PC + 1);
             break;
         case ABSOLUTE_X:
             printf("ABSOLUTE_X\n");
-            cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->X;
+            cpu->address = read_address(cpu, cpu->PC + 1) + cpu->X;
             break;
 
         case ABSOLUTE_Y:
             printf("ABSOLUTE_Y\n");
-            cpu->address = read_address(cpu, cpu->PC  + 1) + cpu->Y;
+            cpu->address = read_address(cpu, cpu->PC + 1) + cpu->Y;
             break;
 
         case ACCUMULATOR:
@@ -153,7 +153,7 @@ void run_instructions(cpu_t *cpu){
 
         case RELATIVE:
             printf("RELATIVE\n");
-            // NOT IMPLEMENTED
+            cpu->address = cpu->PC + 1;
             break;
 
         case ZERO_PAGE:
@@ -558,35 +558,75 @@ void cpy(cpu_t *cpu){
 // -----------------------------
 
 void bcc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BCC\n");
+    
+    if(!cpu->C){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bcs(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BSC\n");
+    
+    if(cpu->C){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void beq(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BEQ\n");
+    
+    if(cpu->Z){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bne(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BNE\n");
+    
+    if(!cpu->Z){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bpl(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BPL\n");
+    
+    if(!cpu->N){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bmi(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BMI\n");
+    
+    if(cpu->N){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bvc(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BVC\n");
+    
+    if(!cpu->V){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 void bvs(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BVS\n");
+    
+    if(cpu->V){
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        return;
+    }
 }
 
 // -----------------------------
