@@ -38,7 +38,7 @@ void init_cpu(cpu_t *cpu){
 		beq, sbc, NULL, NULL, nop, sbc, inc, NULL,
 		sed, sbc, nop, NULL, nop, sbc, inc, NULL,
 	};
-    memcpy(cpu->table_instructions, instructions, sizeof(instructions));
+    memcpy(cpu->instructions, instructions, sizeof(instructions));
 
     ubyte instructions_sizes[256] = {
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
@@ -58,7 +58,7 @@ void init_cpu(cpu_t *cpu){
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
         2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
     };
-    memcpy(cpu->table_instructions_sizes, instructions_sizes, sizeof(instructions_sizes));
+    memcpy(cpu->instructions_sizes, instructions_sizes, sizeof(instructions_sizes));
 
     ubyte instructions_modes[256] = {
         6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
@@ -78,7 +78,7 @@ void init_cpu(cpu_t *cpu){
         5, 7, 5, 7, 11, 11, 11, 11, 6, 5, 6, 5, 1, 1, 1, 1,
         10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
     };
-    memcpy(cpu->table_instructions_modes, instructions_modes, sizeof(instructions_modes));
+    memcpy(cpu->instructions_modes, instructions_modes, sizeof(instructions_modes));
 
     cpu->read = bus_read;
     cpu->write = bus_write;
@@ -109,7 +109,7 @@ void run_instructions(cpu_t *cpu){
     }
 
     ubyte opcode = cpu->read(cpu->PC, cpu->console);
-    cpu->mode = cpu->table_instructions_modes[opcode];
+    cpu->mode = cpu->instructions_modes[opcode];
 
     printf("opcode: %#X\n", opcode);
 
@@ -184,12 +184,12 @@ void run_instructions(cpu_t *cpu){
     }
 
     printf("address: %#X\n", cpu->address);
-    printf("size: %#X\n", cpu->table_instructions_sizes[opcode]);
+    printf("size: %#X\n", cpu->instructions_sizes[opcode]);
 
-    cpu->PC += cpu->table_instructions_sizes[opcode];
+    cpu->PC += cpu->instructions_sizes[opcode];
 
-    if(cpu->table_instructions[opcode] != NULL){
-        cpu->table_instructions[opcode](cpu);
+    if(cpu->instructions[opcode] != NULL){
+        cpu->instructions[opcode](cpu);
     }
 
     printf("register-PC: %#X\n", cpu->PC);

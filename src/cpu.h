@@ -45,9 +45,9 @@ typedef struct cpu {
     uint16_t address;
     modes_t mode;
 
-    void (*table_instructions[256])(struct cpu *cpu);
-    ubyte table_instructions_sizes[256];
-    ubyte table_instructions_modes[256];
+    void (*instructions[256])(struct cpu *cpu);
+    ubyte instructions_sizes[256];
+    ubyte instructions_modes[256];
 
     ubyte (*read)(uint16_t address, console_t *console);
     void (*write)(uint16_t address, ubyte data, console_t *console);
