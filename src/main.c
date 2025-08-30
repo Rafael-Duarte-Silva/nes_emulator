@@ -14,8 +14,9 @@ int main(int argc, char *argv[]) {
     while (1)
     {
         printf("\n-------------- STEP --------------\n");
-        getchar();
         run_instructions(&cpu);
+
+        getchar();
     }
 
     return 0;

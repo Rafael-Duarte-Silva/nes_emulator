@@ -88,7 +88,7 @@ void init_cpu(cpu_t *cpu){
 void reset(cpu_t *cpu){
     cpu->PC = 0x00;
     //cpu->PC = read_address(cpu, 0xFFFC);
-    cpu->SP = 0xFD;
+    cpu->SP = 0xFF;
 
     cpu->C = false;
     cpu->Z = false;
@@ -176,12 +176,16 @@ void run_instructions(cpu_t *cpu){
     }
 
     printf("address: %#X\n", cpu->address);
+    printf("size: %#X\n", cpu->table_instructions_sizes[opcode]);
+
+    cpu->PC += cpu->table_instructions_sizes[opcode];
 
     if(cpu->table_instructions[opcode] != NULL){
         cpu->table_instructions[opcode](cpu);
     }
 
-    printf("mem-%d: %#X\n", cpu->address, cpu->read(cpu->address, cpu->console));
+    printf("register-PC: %#X\n", cpu->PC);
+    printf("register-SP: %#X\n", cpu->SP);
     printf("register-A: %#X\n", cpu->A);
     printf("register-X: %#X\n", cpu->X);
     printf("register-Y: %#X\n", cpu->Y);
@@ -189,8 +193,10 @@ void run_instructions(cpu_t *cpu){
     printf("register(flag)-N: %#X\n", cpu->N);
     printf("register(flag)-C: %#X\n", cpu->C);
     printf("register(flag)-V: %#X\n", cpu->V);
-
-    cpu->PC += cpu->table_instructions_sizes[opcode];
+    printf("register(flag)-I: %#X\n", cpu->I);
+    printf("register(flag)-B: %#X\n", cpu->B);
+    printf("register(flag)-D: %#X\n", cpu->D);
+    printf("mem-%d: %#X\n", cpu->address, cpu->read(cpu->address, cpu->console));
 }
 
 // -----------------------------
@@ -199,6 +205,28 @@ void run_instructions(cpu_t *cpu){
 
 uint16_t read_address(cpu_t *cpu, uint16_t address){
     return cpu->read(address + 1, cpu->console) << 8 | cpu->read(address, cpu->console);
+}
+
+ubyte stack_read(cpu_t *cpu) {
+    cpu->SP++;
+    uint16_t address = cpu->SP + 0x0100;
+    return cpu->read(address, cpu->console);
+}
+
+void stack_write(cpu_t *cpu, ubyte data) {
+    uint16_t address = cpu->SP + 0x0100;
+    cpu->write(address, data, cpu->console);
+    cpu->SP--;
+}
+
+// -----------------------------
+// DEBUG
+// -----------------------------
+
+void print_binary(ubyte value){
+    for (int i = 7; i >= 0; i--) {
+        printf("%d", value >> i & 0x01);
+    }
 }
 
 // -----------------------------
@@ -566,23 +594,73 @@ void bvs(cpu_t *cpu){
 // -----------------------------
 
 void jmp(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("JUMP\n");
+    cpu->PC = cpu->address;
 }
 
 void jsr(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("JSR\n");
+
+    ubyte low = (cpu->PC - 1) & 0xFF;
+    ubyte high = (cpu->PC - 1 >> 8) & 0xFF;
+
+    stack_write(cpu, low);
+    stack_write(cpu, high);
+
+    cpu->PC = cpu->address;
 }
 
 void rts(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("RTS\n");
+
+    ubyte high = stack_read(cpu);
+    ubyte low = stack_read(cpu);
+
+    cpu->PC = high << 8 | low;
+    cpu->PC++;
 }
 
 void brk(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("BRK\n");
+
+    ubyte low = (cpu->PC) & 0xFF;
+    ubyte high = (cpu->PC >> 8) & 0xFF;
+
+    stack_write(cpu, low);
+    stack_write(cpu, high);
+
+    cpu->PC = cpu->read(0xFFFE, cpu->console);
+
+    ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
+    stack_write(cpu, P);
+
+    printf("register(flags)-P: ");
+    print_binary(P);
+    printf("\n");
+
+    cpu->I = 1;
 }
 
 void rti(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("RTI\n");
+
+    ubyte P = stack_read(cpu);
+    ubyte high = stack_read(cpu);
+    ubyte low = stack_read(cpu);
+
+    printf("register(flags)-P: ");
+    print_binary(P);
+    printf("\n");
+
+    cpu->PC = high << 8 | low;
+
+    cpu->N = P >> 7 && 0x01;
+    cpu->V = P >> 6 && 0x01;
+    cpu->D = P >> 3 && 0x01;
+    cpu->I = P >> 2 && 0x01;
+    cpu->N = P >> 7 && 0x01;
+    cpu->Z = P >> 1 && 0x01;
+    cpu->C = P && 0x01;
 }
 
 // -----------------------------

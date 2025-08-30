@@ -60,6 +60,14 @@ void reset(cpu_t *cpu);
 // -----------------------------
 
 uint16_t read_address(cpu_t *cpu, uint16_t address);
+ubyte stack_read(cpu_t *cpu);
+void stack_write(cpu_t *cpu, ubyte data);
+
+// -----------------------------
+// DEBUG
+// -----------------------------
+
+void print_binary(ubyte value);
 
 // -----------------------------
 // ACESS
