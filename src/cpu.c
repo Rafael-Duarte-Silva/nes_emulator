@@ -156,7 +156,7 @@ void run_instructions(cpu_t *cpu){
 
         case INDIRECT_INDEXED:
             printf("INDIRECT_INDEXED\n");
-            cpu->address = read_address(cpu, cpu->read(cpu->read(cpu->PC + 1, cpu->console), cpu->console)) + cpu->Y;
+            cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y;
             break;
 
         case RELATIVE:
@@ -171,12 +171,12 @@ void run_instructions(cpu_t *cpu){
 
         case ZERO_PAGE_X:
             printf("ZERO_PAGE_X\n");
-            cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->X;
+            cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->X) % 0x00FF;
             break;
 
         case ZERO_PAGE_Y:
             printf("ZERO_PAGE_Y\n");
-            cpu->address = cpu->read(cpu->PC + 1, cpu->console) + cpu->Y;
+            cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->Y) % 0x00FF;
             break;
         
         default:
