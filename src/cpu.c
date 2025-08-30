@@ -811,5 +811,5 @@ void clv(cpu_t *cpu){
 // -----------------------------
 
 void nop(cpu_t *cpu){
-
+    printf("NOP\n");
 }
