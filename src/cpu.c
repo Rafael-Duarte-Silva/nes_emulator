@@ -92,7 +92,9 @@ void reset(cpu_t *cpu){
 
     cpu->C = false;
     cpu->Z = false;
-    cpu->I = false;
+    cpu->temp_I = false;
+    cpu->I = cpu->temp_I;
+    cpu->delay_I = false;
     cpu->D = false;
     cpu->B = false;
     cpu->V = false;
@@ -100,6 +102,12 @@ void reset(cpu_t *cpu){
 }
 
 void run_instructions(cpu_t *cpu){
+    if(cpu->delay_I == false){
+        cpu->I = cpu->temp_I;
+    } else {
+        cpu->delay_I = false;
+    }
+
     ubyte opcode = cpu->read(cpu->PC, cpu->console);
     cpu->mode = cpu->table_instructions_modes[opcode];
 
@@ -207,13 +215,13 @@ uint16_t read_address(cpu_t *cpu, uint16_t address){
     return cpu->read(address + 1, cpu->console) << 8 | cpu->read(address, cpu->console);
 }
 
-ubyte stack_read(cpu_t *cpu) {
+ubyte stack_pull(cpu_t *cpu) {
     cpu->SP++;
     uint16_t address = cpu->SP + 0x0100;
     return cpu->read(address, cpu->console);
 }
 
-void stack_write(cpu_t *cpu, ubyte data) {
+void stack_push(cpu_t *cpu, ubyte data) {
     uint16_t address = cpu->SP + 0x0100;
     cpu->write(address, data, cpu->console);
     cpu->SP--;
@@ -644,8 +652,8 @@ void jsr(cpu_t *cpu){
     ubyte low = (cpu->PC - 1) & 0xFF;
     ubyte high = (cpu->PC - 1 >> 8) & 0xFF;
 
-    stack_write(cpu, low);
-    stack_write(cpu, high);
+    stack_push(cpu, low);
+    stack_push(cpu, high);
 
     cpu->PC = cpu->address;
 }
@@ -653,8 +661,8 @@ void jsr(cpu_t *cpu){
 void rts(cpu_t *cpu){
     printf("RTS\n");
 
-    ubyte high = stack_read(cpu);
-    ubyte low = stack_read(cpu);
+    ubyte high = stack_pull(cpu);
+    ubyte low = stack_pull(cpu);
 
     cpu->PC = high << 8 | low;
     cpu->PC++;
@@ -666,27 +674,27 @@ void brk(cpu_t *cpu){
     ubyte low = (cpu->PC) & 0xFF;
     ubyte high = (cpu->PC >> 8) & 0xFF;
 
-    stack_write(cpu, low);
-    stack_write(cpu, high);
+    stack_push(cpu, low);
+    stack_push(cpu, high);
 
     cpu->PC = cpu->read(0xFFFE, cpu->console);
 
     ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
-    stack_write(cpu, P);
+    stack_push(cpu, P);
 
     printf("register(flags)-P: ");
     print_binary(P);
     printf("\n");
 
-    cpu->I = 1;
+    cpu->temp_I = 1;
 }
 
 void rti(cpu_t *cpu){
     printf("RTI\n");
 
-    ubyte P = stack_read(cpu);
-    ubyte high = stack_read(cpu);
-    ubyte low = stack_read(cpu);
+    ubyte P = stack_pull(cpu);
+    ubyte high = stack_pull(cpu);
+    ubyte low = stack_pull(cpu);
 
     printf("register(flags)-P: ");
     print_binary(P);
@@ -697,7 +705,7 @@ void rti(cpu_t *cpu){
     cpu->N = P >> 7 && 0x01;
     cpu->V = P >> 6 && 0x01;
     cpu->D = P >> 3 && 0x01;
-    cpu->I = P >> 2 && 0x01;
+    cpu->temp_I = P >> 2 && 0x01;
     cpu->N = P >> 7 && 0x01;
     cpu->Z = P >> 1 && 0x01;
     cpu->C = P && 0x01;
@@ -708,27 +716,53 @@ void rti(cpu_t *cpu){
 // -----------------------------
 
 void pha(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("PHA\n");
+    stack_push(cpu, cpu->A);
 }
 
 void pla(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("PLA\n");
+    cpu->A = stack_pull(cpu);
 }
 
 void php(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("PHP\n");
+
+    ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
+    stack_push(cpu, P);
+
+    printf("register(flags)-P: ");
+    print_binary(P);
+    printf("\n");
 }
 
 void plp(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("PLP\n");
+
+    ubyte P = stack_pull(cpu);
+
+    printf("register(flags)-P: ");
+    print_binary(P);
+    printf("\n");
+
+    cpu->N = P >> 7 && 0x01;
+    cpu->V = P >> 6 && 0x01;
+    cpu->D = P >> 3 && 0x01;
+    cpu->temp_I = P >> 2 && 0x01;
+    cpu->delay_I = true;
+    cpu->N = P >> 7 && 0x01;
+    cpu->Z = P >> 1 && 0x01;
+    cpu->C = P && 0x01;
 }
 
 void txs(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TXS\n");
+    cpu->SP = cpu->X;
 }
 
 void tsx(cpu_t *cpu){
-    // NOT IMPLEMENTED
+    printf("TSX\n");
+    cpu->X = cpu->SP;
 }
 
 // -----------------------------

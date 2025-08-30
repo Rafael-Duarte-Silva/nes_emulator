@@ -34,6 +34,8 @@ typedef struct cpu {
     bool C; // Carry
     bool Z; // Zero
     bool I; // Interrupt Disable
+    bool temp_I; //
+    bool delay_I;
     bool D; // Decimal Mode
     bool B; // Break Command
     bool V; // Overflow
@@ -60,8 +62,8 @@ void reset(cpu_t *cpu);
 // -----------------------------
 
 uint16_t read_address(cpu_t *cpu, uint16_t address);
-ubyte stack_read(cpu_t *cpu);
-void stack_write(cpu_t *cpu, ubyte data);
+ubyte stack_pull(cpu_t *cpu);
+void stack_push(cpu_t *cpu, ubyte data);
 
 // -----------------------------
 // DEBUG
