@@ -128,11 +128,15 @@ void init_cpu(cpu_t *cpu){
 void reset(cpu_t *cpu){
     cpu->PC = 0x00;
     //cpu->PC = read_address(cpu, 0xFFFC);
-    cpu->SP = 0xFF;
+    cpu->SP = 0xFD;
+
+    cpu->A = 0;
+    cpu->X = 0;
+    cpu->Y = 0;
 
     cpu->C = false;
     cpu->Z = false;
-    cpu->temp_I = false;
+    cpu->temp_I = true;
     cpu->I = cpu->temp_I;
     cpu->delay_I = false;
     cpu->D = false;
@@ -673,7 +677,7 @@ void bpl(cpu_t *cpu){
     
     if(!cpu->N){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC -1);
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
