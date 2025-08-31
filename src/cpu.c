@@ -80,6 +80,46 @@ void init_cpu(cpu_t *cpu){
     };
     memcpy(cpu->instructions_modes, instructions_modes, sizeof(instructions_modes));
 
+    ubyte instructions_cycles[256] = {
+        7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+        6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+        6, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 3, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+        6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 5, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+        2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+        2, 6, 2, 6, 4, 4, 4, 4, 2, 5, 2, 5, 5, 5, 5, 5,
+        2, 6, 2, 6, 3, 3, 3, 3, 2, 2, 2, 2, 4, 4, 4, 4,
+        2, 5, 2, 5, 4, 4, 4, 4, 2, 4, 2, 4, 4, 4, 4, 4,
+        2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+        2, 6, 2, 8, 3, 3, 5, 5, 2, 2, 2, 2, 4, 4, 6, 6,
+        2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
+    };
+    memcpy(cpu->instructions_cycles, instructions_cycles, sizeof(instructions_cycles));
+
+    ubyte instructions_pages_cycles[256] = {
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 1,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 0,
+    };
+    memcpy(cpu->instructions_pages_cycles, instructions_pages_cycles, sizeof(instructions_pages_cycles));
+
     cpu->read = bus_read;
     cpu->write = bus_write;
     reset(cpu);
@@ -108,10 +148,11 @@ void run_instructions(cpu_t *cpu){
         cpu->delay_I = false;
     }
 
-    ubyte opcode = cpu->read(cpu->PC, cpu->console);
-    cpu->mode = cpu->instructions_modes[opcode];
+    cpu->opcode = cpu->read(cpu->PC, cpu->console);
+    cpu->mode = cpu->instructions_modes[cpu->opcode];
+    cpu->cycles = cpu->instructions_cycles[cpu->opcode];
 
-    printf("opcode: %#X\n", opcode);
+    printf("opcode: %#X\n", cpu->opcode);
 
     switch (cpu->mode)
     {
@@ -121,12 +162,12 @@ void run_instructions(cpu_t *cpu){
             break;
         case ABSOLUTE_X:
             printf("ABSOLUTE_X\n");
-            cpu->address = read_address(cpu, cpu->PC + 1) + cpu->X;
+            cpu->address = crossed_page(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
             break;
 
         case ABSOLUTE_Y:
             printf("ABSOLUTE_Y\n");
-            cpu->address = read_address(cpu, cpu->PC + 1) + cpu->Y;
+            cpu->address = crossed_page(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
             break;
 
         case ACCUMULATOR:
@@ -156,12 +197,15 @@ void run_instructions(cpu_t *cpu){
 
         case INDIRECT_INDEXED:
             printf("INDIRECT_INDEXED\n");
-            cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y;
+            cpu->address = crossed_page(
+                cpu,
+                read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y
+            );
             break;
 
         case RELATIVE:
             printf("RELATIVE\n");
-            cpu->address = cpu->PC + 1;
+            cpu->address = 0;
             break;
 
         case ZERO_PAGE:
@@ -184,13 +228,15 @@ void run_instructions(cpu_t *cpu){
     }
 
     printf("address: %#X\n", cpu->address);
-    printf("size: %#X\n", cpu->instructions_sizes[opcode]);
+    printf("size: %#X\n", cpu->instructions_sizes[cpu->opcode]);
 
-    cpu->PC += cpu->instructions_sizes[opcode];
+    cpu->PC += cpu->instructions_sizes[cpu->opcode];
 
-    if(cpu->instructions[opcode] != NULL){
-        cpu->instructions[opcode](cpu);
+    if(cpu->instructions[cpu->opcode] != NULL){
+        cpu->instructions[cpu->opcode](cpu);
     }
+
+    printf("cycles: %#X\n", cpu->cycles);
 
     printf("register-PC: %#X\n", cpu->PC);
     printf("register-SP: %#X\n", cpu->SP);
@@ -225,6 +271,15 @@ void stack_push(cpu_t *cpu, ubyte data) {
     uint16_t address = cpu->SP + 0x0100;
     cpu->write(address, data, cpu->console);
     cpu->SP--;
+}
+
+uint16_t crossed_page(cpu_t *cpu, uint16_t new_address){
+    if((new_address & 0xFF00) != (cpu->address & 0xFF00)) {
+        printf("\n--- CROSSED PAGE ---\n\n");
+        cpu->cycles += cpu->instructions_pages_cycles[cpu->opcode];
+    }
+
+    return new_address;
 }
 
 // -----------------------------
@@ -569,7 +624,10 @@ void bcc(cpu_t *cpu){
     printf("BCC\n");
     
     if(!cpu->C){
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
+        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
         return;
     }
 }
@@ -578,6 +636,9 @@ void bcs(cpu_t *cpu){
     printf("BSC\n");
     
     if(cpu->C){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -587,6 +648,9 @@ void beq(cpu_t *cpu){
     printf("BEQ\n");
     
     if(cpu->Z){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -596,6 +660,9 @@ void bne(cpu_t *cpu){
     printf("BNE\n");
     
     if(!cpu->Z){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -605,6 +672,9 @@ void bpl(cpu_t *cpu){
     printf("BPL\n");
     
     if(!cpu->N){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC -1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -614,6 +684,9 @@ void bmi(cpu_t *cpu){
     printf("BMI\n");
     
     if(cpu->N){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -623,6 +696,9 @@ void bvc(cpu_t *cpu){
     printf("BVC\n");
     
     if(!cpu->V){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }
@@ -632,6 +708,9 @@ void bvs(cpu_t *cpu){
     printf("BVS\n");
     
     if(cpu->V){
+        cpu->cycles++;
+        cpu->address = crossed_page(cpu, cpu->PC - 1);
+
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
     }

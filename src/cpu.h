@@ -42,12 +42,16 @@ typedef struct cpu {
     bool N; // Negative
 
     console_t *console;
+    ubyte opcode;
     uint16_t address;
     modes_t mode;
+    ubyte cycles;
 
     void (*instructions[256])(struct cpu *cpu);
     ubyte instructions_sizes[256];
     ubyte instructions_modes[256];
+    ubyte instructions_cycles[256];
+    ubyte instructions_pages_cycles[256];
 
     ubyte (*read)(uint16_t address, console_t *console);
     void (*write)(uint16_t address, ubyte data, console_t *console);
@@ -64,6 +68,7 @@ void reset(cpu_t *cpu);
 uint16_t read_address(cpu_t *cpu, uint16_t address);
 ubyte stack_pull(cpu_t *cpu);
 void stack_push(cpu_t *cpu, ubyte data);
+uint16_t crossed_page(cpu_t *cpu, uint16_t new_address);
 
 // -----------------------------
 // DEBUG
