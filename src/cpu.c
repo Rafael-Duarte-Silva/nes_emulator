@@ -785,13 +785,13 @@ void rti(cpu_t *cpu){
 
     cpu->PC = high << 8 | low;
 
-    cpu->N = P >> 7 && 0x01;
-    cpu->V = P >> 6 && 0x01;
-    cpu->D = P >> 3 && 0x01;
-    cpu->temp_I = P >> 2 && 0x01;
-    cpu->N = P >> 7 && 0x01;
-    cpu->Z = P >> 1 && 0x01;
-    cpu->C = P && 0x01;
+    cpu->N = P >> 7 & 0x01;
+    cpu->V = P >> 6 & 0x01;
+    cpu->D = P >> 3 & 0x01;
+    cpu->temp_I = P >> 2 & 0x01;
+    cpu->N = P >> 7 & 0x01;
+    cpu->Z = P >> 1 & 0x01;
+    cpu->C = P & 0x01;
 }
 
 // -----------------------------
@@ -828,14 +828,14 @@ void plp(cpu_t *cpu){
     print_binary(P);
     printf("\n");
 
-    cpu->N = P >> 7 && 0x01;
-    cpu->V = P >> 6 && 0x01;
-    cpu->D = P >> 3 && 0x01;
-    cpu->temp_I = P >> 2 && 0x01;
+    cpu->N = P >> 7 & 0x01;
+    cpu->V = P >> 6 & 0x01;
+    cpu->D = P >> 3 & 0x01;
+    cpu->temp_I = P >> 2 & 0x01;
     cpu->delay_I = true;
-    cpu->N = P >> 7 && 0x01;
-    cpu->Z = P >> 1 && 0x01;
-    cpu->C = P && 0x01;
+    cpu->N = P >> 7 & 0x01;
+    cpu->Z = P >> 1 & 0x01;
+    cpu->C = P & 0x01;
 }
 
 void txs(cpu_t *cpu){
