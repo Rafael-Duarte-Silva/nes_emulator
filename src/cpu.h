@@ -68,7 +68,7 @@ void reset(cpu_t *cpu);
 uint16_t read_address(cpu_t *cpu, uint16_t address);
 ubyte stack_pull(cpu_t *cpu);
 void stack_push(cpu_t *cpu, ubyte data);
-uint16_t crossed_page(cpu_t *cpu, uint16_t new_address);
+uint16_t page_crossed(cpu_t *cpu, uint16_t new_address);
 
 // -----------------------------
 // DEBUG

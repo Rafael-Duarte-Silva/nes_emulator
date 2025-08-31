@@ -166,12 +166,12 @@ void run_instructions(cpu_t *cpu){
             break;
         case ABSOLUTE_X:
             printf("ABSOLUTE_X\n");
-            cpu->address = crossed_page(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
+            cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
             break;
 
         case ABSOLUTE_Y:
             printf("ABSOLUTE_Y\n");
-            cpu->address = crossed_page(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
+            cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
             break;
 
         case ACCUMULATOR:
@@ -201,7 +201,7 @@ void run_instructions(cpu_t *cpu){
 
         case INDIRECT_INDEXED:
             printf("INDIRECT_INDEXED\n");
-            cpu->address = crossed_page(
+            cpu->address = page_crossed(
                 cpu,
                 read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y
             );
@@ -277,7 +277,7 @@ void stack_push(cpu_t *cpu, ubyte data) {
     cpu->SP--;
 }
 
-uint16_t crossed_page(cpu_t *cpu, uint16_t new_address){
+uint16_t page_crossed(cpu_t *cpu, uint16_t new_address){
     if((new_address & 0xFF00) != (cpu->address & 0xFF00)) {
         printf("\n--- CROSSED PAGE ---\n\n");
         cpu->cycles += cpu->instructions_pages_cycles[cpu->opcode];
@@ -629,7 +629,7 @@ void bcc(cpu_t *cpu){
     
     if(!cpu->C){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
         return;
@@ -641,7 +641,7 @@ void bcs(cpu_t *cpu){
     
     if(cpu->C){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -653,7 +653,7 @@ void beq(cpu_t *cpu){
     
     if(cpu->Z){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -665,7 +665,7 @@ void bne(cpu_t *cpu){
     
     if(!cpu->Z){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -677,7 +677,7 @@ void bpl(cpu_t *cpu){
     
     if(!cpu->N){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -689,7 +689,7 @@ void bmi(cpu_t *cpu){
     
     if(cpu->N){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -701,7 +701,7 @@ void bvc(cpu_t *cpu){
     
     if(!cpu->V){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
@@ -713,7 +713,7 @@ void bvs(cpu_t *cpu){
     
     if(cpu->V){
         cpu->cycles++;
-        cpu->address = crossed_page(cpu, cpu->PC - 1);
+        cpu->address = page_crossed(cpu, cpu->PC - 1);
 
         cpu->PC += (byte)cpu->read(cpu->address, cpu->console); 
         return;
