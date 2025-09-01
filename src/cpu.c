@@ -267,12 +267,12 @@ uint16_t read_address(cpu_t *cpu, uint16_t address){
 
 ubyte stack_pull(cpu_t *cpu) {
     cpu->SP++;
-    uint16_t address = cpu->SP + 0x0100;
+    uint16_t address = (cpu->SP % 0x10) + 0x0100;
     return cpu->read(address, cpu->console);
 }
 
 void stack_push(cpu_t *cpu, ubyte data) {
-    uint16_t address = cpu->SP + 0x0100;
+    uint16_t address = (cpu->SP % 0x10) + 0x0100;
     cpu->write(address, data, cpu->console);
     cpu->SP--;
 }
