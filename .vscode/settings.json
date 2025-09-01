@@ -7,6 +7,7 @@
         "string.h": "c",
         "bus.h": "c",
         "type_traits": "c",
-        "compare": "c"
+        "compare": "c",
+        "stdbool.h": "c"
     }
 }

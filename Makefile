@@ -5,8 +5,8 @@ CFLAGS=-c
 HEADERDIR= src/
 SOURCEDIR= src/
 
-HEADER_FILES= types.h console.h cpu.h bus.h
-SOURCE_FILES= main.c console.c cpu.c bus.c
+HEADER_FILES= types.h console.h cpu.h bus.h cartrigde.h
+SOURCE_FILES= main.c console.c cpu.c bus.c cartrigde.c
 
 HEADERS_FP = $(addprefix $(HEADERDIR),$(HEADER_FILES))
 SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))

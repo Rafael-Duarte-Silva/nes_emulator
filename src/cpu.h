@@ -2,7 +2,7 @@
 #define CPU_H
 
 #include "types.h"
-#include "stdbool.h"
+#include <stdbool.h>
 
 typedef struct console console_t;
 
