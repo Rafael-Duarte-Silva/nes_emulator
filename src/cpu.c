@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 
-void init_cpu(cpu_t *cpu){
+void init_cpu(console_t *console, cpu_t *cpu){
     void (*instructions[256])(cpu_t *cpu) = {
 		brk, ora, NULL, NULL, nop, ora, asl, NULL,
 		php, ora, asl, NULL, nop, ora, asl, NULL,
@@ -120,15 +120,19 @@ void init_cpu(cpu_t *cpu){
     };
     memcpy(cpu->instructions_pages_cycles, instructions_pages_cycles, sizeof(instructions_pages_cycles));
 
+    console->CPU = cpu;
+    cpu->console = console;
+    
     cpu->read = bus_read;
     cpu->write = bus_write;
     reset(cpu);
 }
 
 void reset(cpu_t *cpu){
-    cpu->PC = 0x00;
-    //cpu->PC = read_address(cpu, 0xFFFC);
+    cpu->PC = read_address(cpu, 0xFFFC);
     cpu->SP = 0xFD;
+
+    printf("PC: %#X\n", cpu->PC);
 
     cpu->A = 0;
     cpu->X = 0;

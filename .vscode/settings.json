@@ -8,6 +8,14 @@
         "bus.h": "c",
         "type_traits": "c",
         "compare": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "cartrigde.h": "c",
+        "array": "c",
+        "string": "c",
+        "string_view": "c",
+        "mapper1.h": "c",
+        "mapper.h": "c",
+        "stdlib.h": "c",
+        "mapper0.h": "c"
     }
 }

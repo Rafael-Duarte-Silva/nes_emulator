@@ -57,7 +57,7 @@ typedef struct cpu {
     void (*write)(uint16_t address, ubyte data, console_t *console);
 } cpu_t;
 
-void init_cpu(cpu_t *cpu);
+void init_cpu(console_t *console, cpu_t *cpu);
 void run_instructions(cpu_t *cpu);
 void reset(cpu_t *cpu);
 
