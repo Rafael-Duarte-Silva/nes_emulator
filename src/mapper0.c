@@ -14,7 +14,7 @@ void init_mapper0(cartrigde_t *cartrigde) {
 }
 
 ubyte read0(uint16_t address, cartrigde_t *cartrigde) {
-    return cartrigde->prg_rom[address - cartrigde->prg_rom_size];
+    return cartrigde->PRG_ROM[address - cartrigde->PRG_ROM_size];
 }
 
 void write0(uint16_t address, ubyte data, cartrigde_t *cartrigde) {

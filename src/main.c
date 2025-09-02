@@ -11,11 +11,9 @@ int main(int argc, char *argv[]) {
     init_console(&console);
 
     cpu_t cpu = {0};
-    init_cpu(&console, &cpu);
-
     cartrigde_t cartrigde = {0};
     init_cartrigde(&console, &cartrigde, argv[1]);
-    reset(&cpu);
+    init_cpu(&console, &cpu);
 
     while (1)
     {
@@ -26,8 +24,8 @@ int main(int argc, char *argv[]) {
     }
 
     free(cartrigde.mapper);
-    free(cartrigde.prg_rom);
-    free(cartrigde.chr_rom);
+    free(cartrigde.PRG_ROM);
+    free(cartrigde.CHR_ROM);
 
     return 0;
 }

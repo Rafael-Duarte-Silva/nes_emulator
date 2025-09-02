@@ -26,8 +26,7 @@ void init_cartrigde(console_t *console, cartrigde_t *cartrigde, const char rom_n
 
     fseek(rom, 0X00, SEEK_SET);
     fread(header_block, 0x01, HEADER_BLOCK_ZIZE, rom);
-    memcpy(&cartrigde->signature, &header_block[0x00], 0x03);
-    memcpy(&cartrigde->format, &header_block[0x03], 0x01);
+    memcpy(&cartrigde->signature, &header_block[0x00], 0x04);
     memcpy(&cartrigde->PRG_ROM_counter, &header_block[0x04], 0x01);
     memcpy(&cartrigde->CHR_ROM_counter, &header_block[0x05], 0x01);
     memcpy(&cartrigde->ROM_CONTROL_ONE, &header_block[0x06], 0x01);
@@ -35,29 +34,30 @@ void init_cartrigde(console_t *console, cartrigde_t *cartrigde, const char rom_n
     memcpy(&cartrigde->RAM_counter, &header_block[0x08], 0x01);
     free(header_block);
     
-    cartrigde->prg_rom_size = cartrigde->PRG_ROM_counter * 0x4000;
-    cartrigde->prg_rom = malloc(cartrigde->prg_rom_size);
-    if(!cartrigde->prg_rom) return;
+    cartrigde->PRG_ROM_size = cartrigde->PRG_ROM_counter * 0x4000;
+    cartrigde->PRG_ROM = malloc(cartrigde->PRG_ROM_size);
+    if(!cartrigde->PRG_ROM) return;
+
     fseek(rom, 0X10, SEEK_SET);
-    if (fread(cartrigde->prg_rom, 0x01, cartrigde->prg_rom_size, rom) != cartrigde->prg_rom_size) {
+    if (fread(cartrigde->PRG_ROM, 0x01, cartrigde->PRG_ROM_size, rom) != cartrigde->PRG_ROM_size) {
         perror("Failed to read PRG-ROM\n");
-        free(cartrigde->prg_rom);
+        free(cartrigde->PRG_ROM);
         fclose(rom);
         return;
     }
 
-    cartrigde->chr_rom_size = cartrigde->CHR_ROM_counter * 0x2000;
-    cartrigde->chr_rom = malloc(cartrigde->chr_rom_size);
-    if(!cartrigde->chr_rom) return;
-    fseek(rom, 0X10 + cartrigde->prg_rom_size, SEEK_SET);
-    if (fread(cartrigde->chr_rom, 0x01, cartrigde->chr_rom_size, rom) != cartrigde->chr_rom_size) {
-        perror("Failed to read PRG-ROM\n");
-        free(cartrigde->prg_rom);
+    cartrigde->CHR_ROM_size = cartrigde->CHR_ROM_counter * 0x2000;
+    cartrigde->CHR_ROM = malloc(cartrigde->CHR_ROM_size);
+    if(!cartrigde->CHR_ROM) return;
+
+    fseek(rom, 0X10 + cartrigde->PRG_ROM_size, SEEK_SET);
+    if (fread(cartrigde->CHR_ROM, 0x01, cartrigde->CHR_ROM_size, rom) != cartrigde->CHR_ROM_size) {
+        perror("Failed to read CHR-ROM\n");
+        free(cartrigde->PRG_ROM);
+        free(cartrigde->CHR_ROM);
         fclose(rom);
         return;
     }
-
-    printf("\n\nfirst byte: %#X\n\n", cartrigde->prg_rom[0]);
 
     fclose(rom);
 
@@ -67,10 +67,10 @@ void init_cartrigde(console_t *console, cartrigde_t *cartrigde, const char rom_n
     cartrigde->console = console;
     console->cartrigde = cartrigde;
 
+    printf("first byte: %#X\n\n", cartrigde->PRG_ROM[0]);
     printf("rom_name: %s, rom_size: %ld\n", rom_name, rom_size);
 
     printf("signature: %s\n", cartrigde->signature);
-    printf("format: %#X\n", cartrigde->format);
     printf("PRG_ROM_counter: %#X\n", cartrigde->PRG_ROM_counter);
     printf("CHR_ROM_counter: %#X\n", cartrigde->CHR_ROM_counter);
     printf("ROM_CONTROL_ONE: %#X\n", cartrigde->ROM_CONTROL_ONE);

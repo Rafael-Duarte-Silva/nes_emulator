@@ -7,10 +7,6 @@ ubyte bus_read(uint16_t address, console_t *console) {
     }
 
     if(address >= 0x6000) {
-        if(console->cartrigde == NULL){
-            return 0x00;
-        }
-
         return console->cartrigde->mapper->read(address, console->cartrigde);
     }
 }
