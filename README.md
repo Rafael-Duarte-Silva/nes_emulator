@@ -11,4 +11,4 @@
   
   NesDev: [cpu instructions](https://www.nesdev.org/wiki/Instruction_reference), [stack](https://www.nesdev.org/wiki/Stack), [mirroring](https://www.nesdev.org/wiki/Mirroring)
   
-  Reddit: [page crossed](https://www.reddit.com/r/EmuDev/comments/yr28pi/confused_about_page_crossing/)
+  Reddit: [page crossed](https://www.reddit.com/r/EmuDev/comments/yr28pi/confused_about_page_crossing/), [mapper](https://www.reddit.com/r/EmuDev/comments/cyrowl/mappers_and_nes/)
