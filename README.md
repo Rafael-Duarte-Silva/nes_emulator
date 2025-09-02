@@ -9,6 +9,6 @@
   ## CPU
   Masswerk: [cpu instructions](https://www.masswerk.at/6502/6502_instruction_set.html#SEI)
   
-  NesDev: [cpu instructions](https://www.nesdev.org/wiki/Instruction_reference), [stack](https://www.nesdev.org/wiki/Stack)
+  NesDev: [cpu instructions](https://www.nesdev.org/wiki/Instruction_reference), [stack](https://www.nesdev.org/wiki/Stack), [mirroring](https://www.nesdev.org/wiki/Mirroring)
   
   Reddit: [page crossed](https://www.reddit.com/r/EmuDev/comments/yr28pi/confused_about_page_crossing/)
