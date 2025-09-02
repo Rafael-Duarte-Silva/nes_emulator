@@ -1,8 +1,8 @@
 #include "console.h"
 #include "cpu.h"
+#include <stdlib.h>
 
-void init_console(console_t *console, cpu_t *cpu, cartrigde_t *cartrigde){
-    console->CPU = cpu;
-    console->CARTRIGDE = cartrigde;
-    console->CPU->console = console;
+void init_console(console_t *console){
+    console->CPU = NULL;
+    console->cartrigde = NULL;
 }

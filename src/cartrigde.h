@@ -2,16 +2,25 @@
 #define CARTRIGDE_H
 
 #include "types.h"
+#include "mapper.h"
+#include "console.h"
 
-typedef struct {
-    char signature[3]; // Should contain the value 'NES' (identify the file as an iNES file)
-    ubyte format; // Should contain the value $1A (also as an identifier)
+typedef struct cartrigde {
+    char signature[4]; // Should contain the value 'NES($1A)' (identify the file as an iNES file)
     ubyte PRG_ROM_counter; // Number of 16 KB PRG-ROM banks
     ubyte CHR_ROM_counter; // Number of 8 KB CHR-ROM / VROM banks
-    uint16_t ROM_CONTROL;
+    ubyte ROM_CONTROL_ONE;
+    ubyte ROM_CONTROL_TWO;
     ubyte RAM_counter; // Number of 8 KB RAM banks (For compatibility)
+
+    console_t *console;
+    mapper_t *mapper;
+    ubyte *PRG_ROM;
+    uint16_t PRG_ROM_size;
+    ubyte *CHR_ROM;
+    uint16_t CHR_ROM_size;
 } cartrigde_t;
 
-void init_cartrigde(cartrigde_t *cartrigde, const char rom_name[]);
+void init_cartrigde(console_t *console, cartrigde_t *cartrigde, const char rom_name[]);
 
 #endif

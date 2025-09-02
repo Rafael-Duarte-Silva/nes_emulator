@@ -8,9 +8,9 @@
 typedef struct console {
     byte RAM[0x0800]; // WRAM (SRAM/motherboard)
     cpu_t *CPU;
-    cartrigde_t *CARTRIGDE;
+    cartrigde_t *cartrigde;
 } console_t;
 
-void init_console(console_t *console, cpu_t *cpu, cartrigde_t *cartrigde);
+void init_console(console_t *console);
 
 #endif
