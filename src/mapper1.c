@@ -24,5 +24,5 @@ ubyte read1(uint16_t address, cartrigde_t *cartrigde) {
 }
 
 void write1(uint16_t address, ubyte data, cartrigde_t *cartrigde) {
-    // teoricamente o pego os dados vindos por aqui e trato eles por registradores
+    // theoretically this function takes the data coming from here and processes it using registers
 }
