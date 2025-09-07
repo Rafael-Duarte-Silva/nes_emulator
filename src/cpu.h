@@ -59,7 +59,7 @@ typedef struct cpu {
 
 void init_cpu(console_t *console, cpu_t *cpu);
 void run_instructions(cpu_t *cpu);
-void reset(cpu_t *cpu);
+void reset_cpu(cpu_t *cpu);
 
 // -----------------------------
 // COMMON

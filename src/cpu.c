@@ -125,10 +125,10 @@ void init_cpu(console_t *console, cpu_t *cpu){
     
     cpu->read = bus_read;
     cpu->write = bus_write;
-    reset(cpu);
+    reset_cpu(cpu);
 }
 
-void reset(cpu_t *cpu){
+void reset_cpu(cpu_t *cpu){
     cpu->PC = read_address(cpu, 0xFFFC);
     cpu->SP = 0xFD;
 
