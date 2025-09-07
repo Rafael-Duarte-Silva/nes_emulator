@@ -589,7 +589,7 @@ void bit(cpu_t *cpu){
     ubyte result = cpu->A & cpu->read(cpu->address, cpu->console);
     
     cpu->Z = result == 0;
-    cpu->V = cpu->read(cpu->address, cpu->console) >> 6 & 0x02;
+    cpu->V = cpu->read(cpu->address, cpu->console) >> 6 & 0x01;
     cpu->N = cpu->read(cpu->address, cpu->console) >> 7;
 }
 
