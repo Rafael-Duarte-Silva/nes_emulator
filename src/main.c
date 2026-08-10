@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "console.h"
 #include "cpu.h"
+#include "ppu.h"
 #include "cartrigde.h"
 
 int main(int argc, char *argv[]) {
@@ -14,6 +15,9 @@ int main(int argc, char *argv[]) {
     cartrigde_t cartrigde = {0};
     init_cartrigde(&console, &cartrigde, argv[1]);
     init_cpu(&console, &cpu);
+
+    ppu_t ppu = {0};
+    init_ppu(&console, &ppu);
 
     while (1)
     {

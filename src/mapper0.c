@@ -14,7 +14,13 @@ void init_mapper0(cartrigde_t *cartrigde) {
 }
 
 ubyte read0(uint16_t address, cartrigde_t *cartrigde) {
-    return cartrigde->PRG_ROM[address - cartrigde->PRG_ROM_size];
+    if(address < 0x2000){
+        return cartrigde->CHR_ROM[address - cartrigde->CHR_ROM_size];
+    }
+
+    if(address >= 0x6000){
+        return cartrigde->PRG_ROM[address - cartrigde->PRG_ROM_size];
+    }
 }
 
 void write0(uint16_t address, ubyte data, cartrigde_t *cartrigde) {

@@ -8,6 +8,9 @@
         "bus.h": "c",
         "type_traits": "c",
         "compare": "c",
-        "stdbool.h": "c"
+        "stdbool.h": "c",
+        "stdlib.h": "c",
+        "cartrigde.h": "c",
+        "ppu.h": "c"
     }
 }
