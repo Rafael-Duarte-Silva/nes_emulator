@@ -1,27 +1,48 @@
-CC=gcc
+CC = gcc
 
-CFLAGS=-c
+CFLAGS = -Wall -Wextra -std=c11
 
-HEADERDIR= src/
-SOURCEDIR= src/
+HEADERDIR = src/
+SOURCEDIR = src/
+BINDIR = bin/
 
-HEADER_FILES= types.h console.h cpu.h ppu.h bus.h cartrigde.h mapper.h mapper0.h
-SOURCE_FILES= main.c console.c cpu.c ppu.c bus.c cartrigde.c mapper.c mapper0.c
+HEADER_FILES = types.h console.h cpu.h ppu.h bus.h cartrigde.h mapper.h mapper0.h
+SOURCE_FILES = main.c console.c cpu.c ppu.c bus.c cartrigde.c mapper.c mapper0.c
 
 HEADERS_FP = $(addprefix $(HEADERDIR),$(HEADER_FILES))
 SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))
 
-OBJECTS =$(SOURCE_FP:.c = .o)
+OBJECTS = $(SOURCE_FILES:%.c=$(BINDIR)%.o)
 
-EXECUTABLE=main
+EXECUTABLE = $(BINDIR)main
+
+.PHONY: all clean
+
+# =========================================================
+# PROGRAM
+# =========================================================
 
 all: $(EXECUTABLE)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(OBJECTS) $(SDL_LFLAGS) -o $(EXECUTABLE)
+main: $(EXECUTABLE)
+	./$(EXECUTABLE)
 
-%.o: %.c $(HEADERS_FP)
-	$(CC) $(CFLAGS) -o $@ $<
+$(EXECUTABLE): $(OBJECTS) | $(BINDIR)
+	$(CC) $(OBJECTS) $(SDL_LFLAGS) $(LDFLAGS) -o $@
+
+$(BINDIR)%.o: $(SOURCEDIR)%.c $(HEADERS_FP) | $(BINDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+# =========================================================
+# BIN
+# =========================================================
+
+$(BINDIR):
+	mkdir -p $(BINDIR)
+
+# =========================================================
+# CLEAN
+# =========================================================
 
 clean:
-	rm -rf src/*.o $(EXECUTABLE)
+	rm -rf $(BINDIR)
