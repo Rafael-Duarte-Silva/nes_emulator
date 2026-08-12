@@ -4,6 +4,7 @@ CFLAGS = -Wall -Wextra -std=c11
 
 HEADERDIR = src/
 SOURCEDIR = src/
+TESTDIR = tests/
 BINDIR = bin/
 
 HEADER_FILES = types.h console.h cpu.h ppu.h bus.h cartrigde.h mapper.h mapper0.h
@@ -15,8 +16,12 @@ SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))
 OBJECTS = $(SOURCE_FILES:%.c=$(BINDIR)%.o)
 
 EXECUTABLE = $(BINDIR)main
+TEST_EXECUTABLE = $(BINDIR)test_cpu
 
-.PHONY: all clean
+TEST_SOURCE = $(TESTDIR)test_cpu.c
+TEST_OBJECTS = $(BINDIR)test_cpu.o $(BINDIR)cpu.o
+
+.PHONY: all test clean
 
 # =========================================================
 # PROGRAM
@@ -32,6 +37,19 @@ $(EXECUTABLE): $(OBJECTS) | $(BINDIR)
 
 $(BINDIR)%.o: $(SOURCEDIR)%.c $(HEADERS_FP) | $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+# =========================================================
+# TESTES
+# =========================================================
+
+test: $(TEST_EXECUTABLE)
+	./$(TEST_EXECUTABLE)
+
+$(TEST_EXECUTABLE): $(TEST_OBJECTS) | $(BINDIR)
+	$(CC) $(TEST_OBJECTS) $(LDFLAGS) -o $@
+
+$(BINDIR)%.o: $(TESTDIR)%.c $(HEADERS_FP) | $(BINDIR)
+	$(CC) $(CFLAGS) -Isrc -c $< -o $@
 
 # =========================================================
 # BIN

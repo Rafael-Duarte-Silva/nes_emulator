@@ -6,7 +6,8 @@
 
 typedef struct console console_t;
 
-typedef enum {
+typedef enum
+{
     ABSOLUTE = 1,
     ABSOLUTE_X,
     ABSOLUTE_Y,
@@ -22,18 +23,19 @@ typedef enum {
     ZERO_PAGE_Y,
 } modes_t;
 
-typedef struct cpu {
+typedef struct cpu
+{
     // Registers
     uint16_t PC; // Program Counter
-    ubyte SP; // Stack Pointer
-    ubyte A; // Accumulator
-    ubyte X; // Index Register
-    ubyte Y; // Index Register
+    ubyte SP;    // Stack Pointer
+    ubyte A;     // Accumulator
+    ubyte X;     // Index Register
+    ubyte Y;     // Index Register
 
-    //Flags (Processor Status(P))
-    bool C; // Carry
-    bool Z; // Zero
-    bool I; // Interrupt Disable
+    // Flags (Processor Status(P))
+    bool C;      // Carry
+    bool Z;      // Zero
+    bool I;      // Interrupt Disable
     bool temp_I; //
     bool delay_I;
     bool D; // Decimal Mode
@@ -51,15 +53,15 @@ typedef struct cpu {
     ubyte instructions_sizes[256];
     ubyte instructions_modes[256];
     ubyte instructions_cycles[256];
-    ubyte instructions_pages_cycles[256];
 
     ubyte (*read)(uint16_t address, console_t *console);
     void (*write)(uint16_t address, ubyte data, console_t *console);
 } cpu_t;
 
 void init_cpu(console_t *console, cpu_t *cpu);
-void run_instructions(cpu_t *cpu);
 void reset_cpu(cpu_t *cpu);
+void set_address_modes(cpu_t *cpu);
+void run_instructions(cpu_t *cpu);
 
 // -----------------------------
 // COMMON
@@ -182,7 +184,7 @@ void sed(cpu_t *cpu);
 void clv(cpu_t *cpu);
 
 // -----------------------------
-// ORTHER
+// OTHER
 // -----------------------------
 
 void nop(cpu_t *cpu);
