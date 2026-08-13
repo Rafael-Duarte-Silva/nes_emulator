@@ -1,6 +1,6 @@
 CC = gcc
 
-CFLAGS = -Wall -Wextra -std=c11
+CFLAGS = -Wall -Wextra -std=c11 -Isrc
 
 HEADERDIR = src/
 SOURCEDIR = src/
@@ -16,12 +16,26 @@ SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))
 OBJECTS = $(SOURCE_FILES:%.c=$(BINDIR)%.o)
 
 EXECUTABLE = $(BINDIR)main
-TEST_EXECUTABLE = $(BINDIR)test_cpu
 
-TEST_SOURCE = $(TESTDIR)test_cpu.c
-TEST_OBJECTS = $(BINDIR)test_cpu.o $(BINDIR)cpu.o
+# =========================================================
+# TESTS
+# =========================================================
 
-.PHONY: all test clean
+CPU_TEST_EXECUTABLE = $(BINDIR)test_cpu
+CARTRIGDE_TEST_EXECUTABLE = $(BINDIR)test_cartrigde
+
+CPU_TEST_OBJECTS = \
+	$(BINDIR)test_cpu.o \
+	$(BINDIR)cpu.o
+
+CARTRIGDE_TEST_OBJECTS = \
+	$(BINDIR)test_cartrigde.o \
+	$(BINDIR)cartrigde.o \
+
+.PHONY: all main clean test test_cpu test_cartrigde
+
+$(BINDIR)test_%.o: $(TESTDIR)test_%.c $(HEADERS_FP) | $(BINDIR)
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # =========================================================
 # PROGRAM
@@ -33,23 +47,36 @@ main: $(EXECUTABLE)
 	./$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) | $(BINDIR)
-	$(CC) $(OBJECTS) $(SDL_LFLAGS) $(LDFLAGS) -o $@
+	$(CC) $(OBJECTS) -o $@
 
 $(BINDIR)%.o: $(SOURCEDIR)%.c $(HEADERS_FP) | $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 # =========================================================
-# TESTES
+# CPU TEST
 # =========================================================
 
-test: $(TEST_EXECUTABLE)
-	./$(TEST_EXECUTABLE)
+test_cpu: $(CPU_TEST_EXECUTABLE)
+	./$(CPU_TEST_EXECUTABLE)
 
-$(TEST_EXECUTABLE): $(TEST_OBJECTS) | $(BINDIR)
-	$(CC) $(TEST_OBJECTS) $(LDFLAGS) -o $@
+$(CPU_TEST_EXECUTABLE): $(CPU_TEST_OBJECTS)
+	$(CC) $(CPU_TEST_OBJECTS) -o $@
 
-$(BINDIR)%.o: $(TESTDIR)%.c $(HEADERS_FP) | $(BINDIR)
-	$(CC) $(CFLAGS) -Isrc -c $< -o $@
+# =========================================================
+# CARTRIGDE TEST
+# =========================================================
+
+test_cartrigde: $(CARTRIGDE_TEST_EXECUTABLE)
+	./$(CARTRIGDE_TEST_EXECUTABLE)
+
+$(CARTRIGDE_TEST_EXECUTABLE): $(CARTRIGDE_TEST_OBJECTS)
+	$(CC) $(CARTRIGDE_TEST_OBJECTS) -o $@
+
+# =========================================================
+# RUN ALL TESTS
+# =========================================================
+
+test: test_cpu test_cartrigde
 
 # =========================================================
 # BIN
