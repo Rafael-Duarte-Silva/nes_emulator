@@ -5,8 +5,10 @@
 #include "cartrigde.h"
 #include "mapper.h"
 
-typedef struct {
+typedef struct
+{
     mapper_t base;
+    uint16_t suffix; // 128 or 256 kilobits (NES-NROM-128/NES-NROM-256)
 } mapper0_t;
 
 void init_mapper0(cartrigde_t *cartrigde);
