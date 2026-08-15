@@ -9,6 +9,16 @@
   ## CPU
   Masswerk: [cpu instructions](https://www.masswerk.at/6502/6502_instruction_set.html#SEI)
   
-  NesDev: [cpu instructions](https://www.nesdev.org/wiki/Instruction_reference), [stack](https://www.nesdev.org/wiki/Stack), [mirroring](https://www.nesdev.org/wiki/Mirroring)
+  NesDev: [cpu instructions](https://www.nesdev.org/wiki/Instruction_reference), [stack](https://www.nesdev.org/wiki/Stack), [mirroring](https://www.nesdev.org/wiki/Mirroring), [cpu map](https://www.nesdev.org/wiki/CPU_memory_map)
   
   Reddit: [page crossed](https://www.reddit.com/r/EmuDev/comments/yr28pi/confused_about_page_crossing/), [mapper](https://www.reddit.com/r/EmuDev/comments/cyrowl/mappers_and_nes/)
+
+  ## Mappers
+  Nesdev: [NROM](https://www.nesdev.org/wiki/NROM)
+
+  Reddit: [NROM](https://www.reddit.com/r/EmuDev/comments/1cqs010/confused_about_nrom_implementation/)
+
+  ## INES
+  NesDev: [file format](https://www.nesdev.org/wiki/INES#Trainer), [Expansion Rom](https://forums.nesdev.org/viewtopic.php?t=12936), [Trainer](https://forums.nesdev.org/viewtopic.php?t=3657)
+
+  Reddit: [PRG_RAM](https://www.reddit.com/r/EmuDev/comments/1ctx12j/prg_ram_confusion_in_ines/)
