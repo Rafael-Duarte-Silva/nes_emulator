@@ -102,11 +102,11 @@ static void create_directory(void)
 static void fill_data(
     FILE *file,
     size_t size,
-    uint8_t value)
+    uint8_t data)
 {
     for (size_t i = 0; i < size; i++)
     {
-        uint8_t byte = value;
+        uint8_t byte = data;
         assert(fwrite(&byte, 1, 1, file) == 1);
     }
 }

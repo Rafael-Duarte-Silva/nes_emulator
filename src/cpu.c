@@ -216,7 +216,7 @@ void set_address_modes(cpu_t *cpu)
 
 void run_instructions(cpu_t *cpu)
 {
-    if (cpu->delay_I == false)
+    if (!cpu->delay_I)
     {
         cpu->I = cpu->temp_I;
     }

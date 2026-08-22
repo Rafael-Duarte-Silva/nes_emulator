@@ -21,7 +21,7 @@ typedef enum
     ZERO_PAGE,
     ZERO_PAGE_X,
     ZERO_PAGE_Y,
-} modes_t;
+} ADDRESS_MODE;
 
 typedef struct cpu
 {
@@ -46,7 +46,7 @@ typedef struct cpu
     console_t *console;
     ubyte opcode;
     uint16_t address;
-    modes_t mode;
+    ADDRESS_MODE mode;
     ubyte cycles;
 
     void (*instructions[256])(struct cpu *cpu);

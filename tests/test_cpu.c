@@ -29,35 +29,22 @@ ubyte bus_read(uint16_t address, console_t *console)
     return memory[address];
 }
 
-void bus_write(uint16_t address, ubyte value, console_t *console)
+void bus_write(uint16_t address, ubyte data, console_t *console)
 {
     (void)console;
-    // This is the only mock bus write path: the value is stored at this address.
-    memory[address] = value;
+    // This is the only mock bus write path: the data is stored at this address.
+    memory[address] = data;
 }
 
 // -----------------------------
 // HELPERS
 // -----------------------------
 
-/**
- * Writes a byte directly into the test RAM.
- *
- * This helper makes the test setup explicit: it describes exactly what byte
- * is being placed in memory and at which address before the CPU instruction
- * under test is executed.
- */
-static void write_test_memory(uint16_t address, ubyte value)
+static void write_test_memory(uint16_t address, ubyte data)
 {
-    memory[address] = value;
+    memory[address] = data;
 }
 
-/**
- * Reads a byte directly from the test RAM.
- *
- * Use this when the test needs to make the memory value being inspected
- * explicit instead of accessing the global memory array inline.
- */
 static ubyte read_test_memory(uint16_t address)
 {
     return memory[address];
@@ -80,12 +67,12 @@ static ubyte read_test_memory(uint16_t address)
  *
  * Expected:
  *   - "address" is the effective address already calculated by the test.
- *   - "value" is the byte that the instruction is expected to read.
+ *   - "data" is the byte that the instruction is expected to read.
  */
-static void set_test_operand(cpu_t *cpu, uint16_t address, ubyte value)
+static void set_test_operand(cpu_t *cpu, uint16_t address, ubyte data)
 {
     cpu->address = address;
-    write_test_memory(address, value);
+    write_test_memory(address, data);
 }
 
 /**
@@ -115,7 +102,7 @@ static void set_all_flags(cpu_t *cpu)
 /**
  * Checks a memory location without repeating the expression "memory[address]".
  */
-static void assert_memory_value(uint16_t address, ubyte expected)
+static void assert_memory_data(uint16_t address, ubyte expected)
 {
     assert(read_test_memory(address) == expected);
 }
@@ -186,7 +173,7 @@ static void test_sta(void)
 
     sta(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x55);
+    assert_memory_data(TEST_RAM_ADDR, 0x55);
 }
 
 static void test_ldx(void)
@@ -240,7 +227,7 @@ static void test_stx(void)
 
     stx(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x33);
+    assert_memory_data(TEST_RAM_ADDR, 0x33);
 }
 
 static void test_ldy(void)
@@ -294,7 +281,7 @@ static void test_sty(void)
 
     sty(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x77);
+    assert_memory_data(TEST_RAM_ADDR, 0x77);
 }
 
 // -----------------------------
@@ -816,7 +803,7 @@ static void test_inc(void)
 
     inc(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 11);
+    assert_memory_data(TEST_RAM_ADDR, 11);
     assert_zn(&cpu, false, false);
 }
 
@@ -829,7 +816,7 @@ static void test_inc_zero(void)
 
     inc(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, TEST_ZERO);
+    assert_memory_data(TEST_RAM_ADDR, TEST_ZERO);
     assert_zn(&cpu, true, false);
 }
 
@@ -843,7 +830,7 @@ static void test_inc_wrap(void)
 
     inc(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, TEST_ZERO);
+    assert_memory_data(TEST_RAM_ADDR, TEST_ZERO);
     assert(cpu.C == true);
     assert_zn(&cpu, true, false);
 }
@@ -857,7 +844,7 @@ static void test_inc_positive_to_negative(void)
 
     inc(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, TEST_MAX_NEGATIVE);
+    assert_memory_data(TEST_RAM_ADDR, TEST_MAX_NEGATIVE);
     assert_zn(&cpu, false, true);
 }
 
@@ -871,7 +858,7 @@ static void test_dec(void)
 
     dec(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 9);
+    assert_memory_data(TEST_RAM_ADDR, 9);
     assert_zn(&cpu, false, false);
 }
 
@@ -885,7 +872,7 @@ static void test_dec_zero(void)
 
     dec(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0);
+    assert_memory_data(TEST_RAM_ADDR, 0);
     assert_zn(&cpu, true, false);
 }
 
@@ -898,7 +885,7 @@ static void test_dec_wrap(void)
 
     dec(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, TEST_MAX_BYTE);
+    assert_memory_data(TEST_RAM_ADDR, TEST_MAX_BYTE);
     assert_zn(&cpu, false, true);
 }
 
@@ -911,7 +898,7 @@ static void test_dec_negative_to_positive(void)
 
     dec(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, TEST_MAX_POSITIVE);
+    assert_memory_data(TEST_RAM_ADDR, TEST_MAX_POSITIVE);
     assert_zn(&cpu, false, false);
 }
 
@@ -1115,7 +1102,7 @@ static void test_asl_memory(void)
 
     asl(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x02);
+    assert_memory_data(TEST_RAM_ADDR, 0x02);
     assert(cpu.C == true);
     assert_zn(&cpu, false, false);
 }
@@ -1190,7 +1177,7 @@ static void test_lsr_memory(void)
 
     lsr(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x40);
+    assert_memory_data(TEST_RAM_ADDR, 0x40);
     assert(cpu.C == true);
     assert_zn(&cpu, false, false);
 }
@@ -1221,7 +1208,7 @@ static void test_rol_memory(void)
 
     rol(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x01);
+    assert_memory_data(TEST_RAM_ADDR, 0x01);
     assert(cpu.C == true);
     assert_zn(&cpu, false, false);
 }
@@ -1284,7 +1271,7 @@ static void test_ror_memory(void)
 
     ror(&cpu);
 
-    assert_memory_value(TEST_RAM_ADDR, 0x80);
+    assert_memory_data(TEST_RAM_ADDR, 0x80);
     assert(cpu.C == true);
     assert_zn(&cpu, false, true);
 }
@@ -1960,8 +1947,8 @@ static void test_jsr(void)
 
     assert(cpu.PC == 0x8000);
     assert(cpu.SP == 0x0D);
-    assert_memory_value(0x010F, 0x34);
-    assert_memory_value(0x010E, 0x12);
+    assert_memory_data(0x010F, 0x34);
+    assert_memory_data(0x010E, 0x12);
 }
 
 static void test_rts(void)
@@ -1998,8 +1985,8 @@ static void test_brk(void)
     brk(&cpu);
 
     assert(cpu.SP == 0x0C);
-    assert_memory_value(0x010E, 0x80);
-    assert_memory_value(0x010F, 0x70);
+    assert_memory_data(0x010E, 0x80);
+    assert_memory_data(0x010F, 0x70);
     assert(cpu.PC == 0x1234);
     assert(cpu.temp_I == true);
 }
@@ -2081,7 +2068,7 @@ static void test_pha(void)
 
     assert(cpu.A == 0x42);
     assert(cpu.SP == 0x0E);
-    assert_memory_value(TEST_STACK_PAGE + TEST_STACK_POINTER, 0x42);
+    assert_memory_data(TEST_STACK_PAGE + TEST_STACK_POINTER, 0x42);
 }
 
 static void test_pla(void)
@@ -2140,7 +2127,7 @@ static void test_php(void)
     php(&cpu);
 
     assert(cpu.SP == 0x0E);
-    assert_memory_value(TEST_STACK_PAGE + TEST_STACK_POINTER, 0xFF);
+    assert_memory_data(TEST_STACK_PAGE + TEST_STACK_POINTER, 0xFF);
 }
 
 static void test_plp(void)
@@ -2607,10 +2594,10 @@ static void test_stack_pull(void)
 
     cpu.SP = TEST_MAX_BYTE;
     write_test_memory(TEST_STACK_PAGE, 0x12);
-    ubyte value = stack_pull(&cpu);
+    ubyte data = stack_pull(&cpu);
 
     assert(cpu.SP == TEST_ZERO);
-    assert(value == 0x12);
+    assert(data == 0x12);
 }
 
 static void test_stack_push(void)
@@ -2622,7 +2609,7 @@ static void test_stack_push(void)
     stack_push(&cpu, 0x12);
 
     assert(cpu.SP == TEST_MAX_BYTE);
-    assert_memory_value(TEST_STACK_PAGE, 0x12);
+    assert_memory_data(TEST_STACK_PAGE, 0x12);
 }
 
 static void test_page_crossed_taken(void)
