@@ -1,8 +1,10 @@
 #include "ppu.h"
+#include "ppu_bus.h"
 #include "console.h"
 #include <stdio.h>
 
-void init_ppu(console_t *console, ppu_t *ppu) {
+void init_ppu(console_t *console, ppu_t *ppu)
+{
     console->PPU = ppu;
     ppu->console = console;
 
@@ -12,124 +14,214 @@ void init_ppu(console_t *console, ppu_t *ppu) {
     ppu->write_registers = write_registers;
 }
 
-void reset_ppu(ppu_t *ppu) {
-    ppu->vblank = false;
-    ppu->sprite0_hit = false;
-    ppu->sprite_overflow = false;
-    ppu->base_name_table = 0x0000;
-    ppu->increment_vram = 0x00;
-    ppu->sprite_pattern_table = 0x0000;
-    ppu->background_pattern_table = 0x0000;
-    ppu->sprite_size = 0x0000;
-     ppu->master_slave_select = false;
-    ppu->nmi = false;
+void reset_ppu(ppu_t *ppu)
+{
+    ppu->ctrl.v_blank_nmi = false;
+    ppu->ctrl.slave_select = false;
+    ppu->ctrl.sprite_size = false;
+    ppu->ctrl.background_table = false;
+    ppu->ctrl.sprite_table = false;
+    ppu->ctrl.vram_address = false;
+    ppu->ctrl.base_nametable = 0x00;
+
+    ppu->mask.blue = false;
+    ppu->mask.green = false;
+    ppu->mask.red = false;
+    ppu->mask.sprite_rendering = false;
+    ppu->mask.background_rendering = false;
+    ppu->mask.show_sprites = false;
+    ppu->mask.show_background = false;
+    ppu->mask.greyscale = false;
+
+    ppu->status.v_blank = false;
+    ppu->status.sprite_0_hit = false;
+    ppu->status.sprite_overflow = false;
+
+    ppu->OAMADDR = 0;
+    ppu->PPUSCROLL = 0;
 }
 
-ubyte ppu_read(uint16_t address, console_t *console){
-    if(address < 0x2000){
-        return console->cartrigde->mapper->read(address, console->cartrigde);
-    }
-
-    if(address < 0x3F00){
-        return console->VRAM[address % 0x3000 - 0x3000];
-    }
-}
-
-ubyte read_registers(uint16_t address, ppu_t *ppu){
+ubyte read_registers(uint16_t address, ppu_t *ppu)
+{
     printf("\n\nPPU-address(read): %#X\n\n", address);
 
     switch (address)
     {
-        case 0x2002:
-            return ppu_status(ppu);
+    case 0x2002:
+        return ppu_status(ppu);
 
-        case 0x2004:
-            
-            break;
+    case 0x2004:
+        return oam_data_read(ppu);
+        break;
 
-        case 0x2007:
-            
-            break;
-        
-        default:
-            break;
+    case 0x2007:
+        return ppu_data_read(ppu);
+        break;
+
+    default:
+        break;
     }
 
     return 0x00;
 }
 
-void write_registers(uint16_t address, ubyte data, ppu_t *ppu){
+void write_registers(uint16_t address, ubyte data, ppu_t *ppu)
+{
     printf("\nPPU-address(write): %#X\n\n", address);
 
     switch (address)
     {
-        case 0x2000:
-            ppu_ctrl(data, ppu);
-            return;
+    case 0x2000:
+        ppu_ctrl(data, ppu);
+        return;
 
-        case 0x2001:
-            
-            break;
+    case 0x2001:
+        ppu_mask(data, ppu);
+        break;
 
-        case 0x2003:
-            
-            break;
+    case 0x2003:
+        oam_addr(data, ppu);
+        break;
 
-        case 0x2004:
-            
-            break;
+    case 0x2004:
+        oam_data_write(data, ppu);
+        break;
 
-        case 0x2005:
-            
-            break;
+    case 0x2005:
+        ppu_scroll(data, ppu);
+        break;
 
-        case 0x2006:
-            ppu_addr(data, ppu);
-            break;
+    case 0x2006:
+        ppu_addr(data, ppu);
+        break;
 
-        case 0x2007:
-            
-            break;
-        
-        default:
-            break;
+    case 0x2007:
+        ppu_data_write(data, ppu);
+        break;
+
+    default:
+        break;
     }
 }
 
-ubyte ppu_status(ppu_t *ppu){
-    ubyte result = ppu->vblank << 7 | ppu->sprite0_hit << 6 | ppu->sprite_overflow << 5 & 0xFF;
-    ppu->vblank = false;
+ubyte get_increment_vram(ubyte key)
+{
+    if (key > 1)
+        return -1;
+
+    uint8_t increment_vram[] = {0x01, 0x20};
+
+    return increment_vram[key];
+}
+
+// 0x2000
+void ppu_ctrl(ubyte data, ppu_t *ppu)
+{
+    ppu->T &= 0xF3FF;
+    ppu->T |= (data & 0x03) << 10;
+
+    ppu->ctrl.v_blank_nmi = (data >> 7) & 0x01;
+    ppu->ctrl.slave_select = (data >> 6) & 0x01;
+    ppu->ctrl.sprite_size = (data >> 5) & 0x01;
+    ppu->ctrl.background_table = (data >> 4) & 0x01;
+    ppu->ctrl.sprite_table = (data >> 3) & 0x01;
+    ppu->ctrl.vram_address = (data >> 2) & 0x01;
+    ppu->ctrl.base_nametable = data & 0x03;
+}
+
+// 0x2001
+void ppu_mask(ubyte data, ppu_t *ppu)
+{
+    ppu->mask.blue = (data >> 7) & 0x01;
+    ppu->mask.green = (data >> 6) & 0x01;
+    ppu->mask.red = (data >> 5) & 0x01;
+    ppu->mask.sprite_rendering = (data >> 4) & 0x01;
+    ppu->mask.background_rendering = (data >> 3) & 0x01;
+    ppu->mask.show_sprites = (data >> 2) & 0x01;
+    ppu->mask.show_background = (data >> 1) & 0x01;
+    ppu->mask.greyscale = data & 0x01;
+}
+
+// 0x2002
+ubyte ppu_status(ppu_t *ppu)
+{
+    ppu->W = 0;
+    uint8_t result = ppu->status.v_blank << 7 | ppu->status.sprite_0_hit << 6 | ppu->status.sprite_overflow << 5;
+    ppu->status.v_blank = false;
     return result;
 }
 
-void ppu_ctrl(ubyte data, ppu_t *ppu){
-    uint16_t base_name_table[] = {0x2000, 0x2400, 0x2800, 0x2C00};
-    uint8_t increment_vram[] = {0x01, 0x20};
-    uint16_t pattern_table [] = {0x0000, 0x1000};
-
-    ppu->base_name_table = base_name_table[data & 0x03];
-    ppu->increment_vram = increment_vram[data >> 2 & 0x01];
-    ppu->sprite_pattern_table = pattern_table[data >> 3 & 0x01]; 
-    ppu->background_pattern_table = pattern_table[data >> 4 & 0x01];
-    ppu->sprite_size = data >> 5 & 0x01;
-    ppu->master_slave_select = data >> 6 & 0x01;
-    ppu->nmi = data >> 7 & 0x01;
-
-    printf("base_name_table : %#X\n", ppu->base_name_table);
-    printf("increment_vram : %#X\n", ppu->increment_vram);
-    printf("background_pattern_table : %#X\n", ppu->background_pattern_table);
-    printf("sprite_pattern_table : %#X\n", ppu->sprite_pattern_table);
-    printf("sprite_size : %#X\n", ppu->sprite_size);
-    printf("nmi : %#X\n\n", ppu->nmi);
+// 0x2003
+void oam_addr(ubyte address, ppu_t *ppu)
+{
+    ppu->OAMADDR = address;
 }
 
-void ppu_addr(ubyte data, ppu_t *ppu){
-    if(ppu->W == 0){
-        ppu->T = data;
+// 0x2004
+void oam_data_write(ubyte data, ppu_t *ppu)
+{
+    ppu->OAM[ppu->OAMADDR] = data;
+    ppu->OAMADDR++;
+}
+
+// 0x2004
+ubyte oam_data_read(ppu_t *ppu)
+{
+    return ppu->OAM[ppu->OAMADDR];
+}
+
+// 0x2005
+void ppu_scroll(ubyte data, ppu_t *ppu)
+{
+    ppu->PPUSCROLL = data;
+
+    if (ppu->W == 0)
+    {
+        ppu->T &= 0xFFE0;
+        ppu->T |= data >> 3;
+        ppu->X |= (data & 0x07);
         ppu->W = 1;
         return;
     }
 
-    ppu->V = ppu->T << 8 | data;
+    uint16_t first_bits = (data & 0xC0) << 2;
+    uint16_t mid_bits = (data & 0x38) << 2;
+    uint16_t last_bits = (data << 12) & 0x7FFF;
+
+    ppu->T &= 0x0C1F;
+    ppu->T |= last_bits | first_bits | mid_bits;
     ppu->W = 0;
+}
+
+// 0x2006
+void ppu_addr(ubyte address, ppu_t *ppu)
+{
+    if (ppu->W == 0)
+    {
+        ppu->T &= 0x00FF;
+        ppu->T |= (address & 0x3F) << 8;
+        ppu->W = 1;
+        return;
+    }
+
+    ppu->T &= 0x7F00;
+    ppu->T |= address;
+    ppu->V = ppu->T;
+    ppu->W = 0;
+}
+
+// 0x2007
+void ppu_data_write(ubyte data, ppu_t *ppu)
+{
+    ppu_bus_write(ppu->V, data, ppu->console);
+    ppu->V += get_increment_vram(ppu->ctrl.vram_address);
+}
+
+// 0x2007
+ubyte ppu_data_read(ppu_t *ppu)
+{
+    const ubyte data = ppu_bus_read(ppu->V, ppu->console);
+    ppu->V += get_increment_vram(ppu->ctrl.vram_address);
+
+    return data;
 }

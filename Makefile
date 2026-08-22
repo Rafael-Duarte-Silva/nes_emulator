@@ -7,8 +7,8 @@ SOURCEDIR = src/
 TESTDIR = tests/
 BINDIR = bin/
 
-HEADER_FILES = types.h console.h cpu.h ppu.h bus.h cartrigde.h mapper.h mapper0.h
-SOURCE_FILES = main.c console.c cpu.c ppu.c bus.c cartrigde.c mapper.c mapper0.c
+HEADER_FILES = types.h console.h cpu.h ppu.h ppu_bus.h bus.h cartrigde.h mapper.h mapper0.h
+SOURCE_FILES = main.c console.c cpu.c ppu.c ppu_bus.c bus.c cartrigde.c mapper.c mapper0.c
 
 HEADERS_FP = $(addprefix $(HEADERDIR),$(HEADER_FILES))
 SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))
@@ -22,11 +22,16 @@ EXECUTABLE = $(BINDIR)main
 # =========================================================
 
 CPU_TEST_EXECUTABLE = $(BINDIR)test_cpu
+PPU_TEST_EXECUTABLE = $(BINDIR)test_ppu
 CARTRIGDE_TEST_EXECUTABLE = $(BINDIR)test_cartrigde
 
 CPU_TEST_OBJECTS = \
 	$(BINDIR)test_cpu.o \
 	$(BINDIR)cpu.o
+
+PPU_TEST_OBJECTS = \
+	$(BINDIR)test_ppu.o \
+	$(BINDIR)ppu.o
 
 CARTRIGDE_TEST_OBJECTS = \
 	$(BINDIR)test_cartrigde.o \
@@ -61,6 +66,16 @@ test_cpu: $(CPU_TEST_EXECUTABLE)
 
 $(CPU_TEST_EXECUTABLE): $(CPU_TEST_OBJECTS)
 	$(CC) $(CPU_TEST_OBJECTS) -o $@
+
+# =========================================================
+# PPU TEST
+# =========================================================
+
+test_ppu: $(PPU_TEST_EXECUTABLE)
+	./$(PPU_TEST_EXECUTABLE)
+
+$(PPU_TEST_EXECUTABLE): $(PPU_TEST_OBJECTS)
+	$(CC) $(PPU_TEST_OBJECTS) -o $@
 
 # =========================================================
 # CARTRIGDE TEST
