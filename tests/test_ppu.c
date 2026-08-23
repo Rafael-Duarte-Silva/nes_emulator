@@ -22,13 +22,13 @@
 
 static uint8_t memory[0x10000];
 
-void ppu_bus_write(uint16_t address, ubyte data, console_t *console)
+void ppu_bus_write(uint16_t address, uint8_t data, console_t *console)
 {
     (void)console;
     memory[address] = data;
 }
 
-ubyte ppu_bus_read(uint16_t address, console_t *console)
+uint8_t ppu_bus_read(uint16_t address, console_t *console)
 {
     (void)console;
     return memory[address];
@@ -44,12 +44,12 @@ void ulogger_log(LOG_LEVEL level, const char *fmt, ...)
 // HELPERS
 // -----------------------------
 
-static void write_test_memory(uint16_t address, ubyte data)
+static void write_test_memory(uint16_t address, uint8_t data)
 {
     memory[address] = data;
 }
 
-static ubyte read_test_memory(uint16_t address)
+static uint8_t read_test_memory(uint16_t address)
 {
     return memory[address];
 }

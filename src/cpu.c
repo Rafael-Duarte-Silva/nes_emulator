@@ -43,7 +43,7 @@ void init_cpu(console_t *console, cpu_t *cpu)
     memcpy(cpu->instructions, instructions, sizeof(instructions));
 
     // clang-format off
-    ubyte instructions_sizes[256] = {
+    uint8_t instructions_sizes[256] = {
         2, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
         2, 2, 0, 0, 2, 2, 2, 0, 1, 3, 1, 0, 3, 3, 3, 0,
         3, 2, 0, 0, 2, 2, 2, 0, 1, 2, 1, 0, 3, 3, 3, 0,
@@ -65,7 +65,7 @@ void init_cpu(console_t *console, cpu_t *cpu)
     memcpy(cpu->instructions_sizes, instructions_sizes, sizeof(instructions_sizes));
 
     // clang-format off
-    ubyte instructions_modes[256] = {
+    uint8_t instructions_modes[256] = {
         6, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
         10, 9, 6, 9, 12, 12, 12, 12, 6, 3, 6, 3, 2, 2, 2, 2,
         1, 7, 6, 7, 11, 11, 11, 11, 6, 5, 4, 5, 1, 1, 1, 1,
@@ -87,7 +87,7 @@ void init_cpu(console_t *console, cpu_t *cpu)
     memcpy(cpu->instructions_modes, instructions_modes, sizeof(instructions_modes));
 
     // clang-format off
-    ubyte instructions_cycles[256] = {
+    uint8_t instructions_cycles[256] = {
         7, 6, 2, 8, 3, 3, 5, 5, 3, 2, 2, 2, 4, 4, 6, 6,
         2, 5, 2, 8, 4, 4, 6, 6, 2, 4, 2, 7, 4, 4, 7, 7,
         6, 6, 2, 8, 3, 3, 5, 5, 4, 2, 2, 2, 4, 4, 6, 6,
@@ -266,14 +266,14 @@ uint16_t read_address(cpu_t *cpu, uint16_t address)
     return cpu->read(address + 1, cpu->console) << 8 | cpu->read(address, cpu->console);
 }
 
-ubyte stack_pull(cpu_t *cpu)
+uint8_t stack_pull(cpu_t *cpu)
 {
     cpu->SP++;
     uint16_t address = cpu->SP + 0x0100;
     return cpu->read(address, cpu->console);
 }
 
-void stack_push(cpu_t *cpu, ubyte data)
+void stack_push(cpu_t *cpu, uint8_t data)
 {
     uint16_t address = cpu->SP + 0x0100;
     cpu->write(address, data, cpu->console);
@@ -295,7 +295,7 @@ uint16_t page_crossed(cpu_t *cpu, uint16_t new_address)
 // DEBUG
 // -----------------------------
 
-void print_binary(ubyte value)
+void print_binary(uint8_t value)
 {
     for (int i = 7; i >= 0; i--)
     {
@@ -612,7 +612,7 @@ void eor(cpu_t *cpu)
 void bit(cpu_t *cpu)
 {
     LOG_DEBUG("BIT");
-    ubyte result = cpu->A & cpu->read(cpu->address, cpu->console);
+    uint8_t result = cpu->A & cpu->read(cpu->address, cpu->console);
 
     cpu->Z = result == 0;
     cpu->V = cpu->read(cpu->address, cpu->console) >> 6 & 0x01;
@@ -626,7 +626,7 @@ void bit(cpu_t *cpu)
 void cmp(cpu_t *cpu)
 {
     LOG_DEBUG("CMP");
-    ubyte result = cpu->A - cpu->read(cpu->address, cpu->console);
+    uint8_t result = cpu->A - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->A >= cpu->read(cpu->address, cpu->console);
     cpu->Z = cpu->A == cpu->read(cpu->address, cpu->console);
@@ -636,7 +636,7 @@ void cmp(cpu_t *cpu)
 void cpx(cpu_t *cpu)
 {
     LOG_DEBUG("CPX");
-    ubyte result = cpu->X - cpu->read(cpu->address, cpu->console);
+    uint8_t result = cpu->X - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->X >= cpu->read(cpu->address, cpu->console);
     cpu->Z = cpu->X == cpu->read(cpu->address, cpu->console);
@@ -646,7 +646,7 @@ void cpx(cpu_t *cpu)
 void cpy(cpu_t *cpu)
 {
     LOG_DEBUG("CPY");
-    ubyte result = cpu->Y - cpu->read(cpu->address, cpu->console);
+    uint8_t result = cpu->Y - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->Y >= cpu->read(cpu->address, cpu->console);
     cpu->Z = cpu->Y == cpu->read(cpu->address, cpu->console);
@@ -664,7 +664,7 @@ void bcc(cpu_t *cpu)
     if (!cpu->C)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -677,7 +677,7 @@ void bcs(cpu_t *cpu)
     if (cpu->C)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -690,7 +690,7 @@ void beq(cpu_t *cpu)
     if (cpu->Z)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -703,7 +703,7 @@ void bne(cpu_t *cpu)
     if (!cpu->Z)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -716,7 +716,7 @@ void bpl(cpu_t *cpu)
     if (!cpu->N)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -729,7 +729,7 @@ void bmi(cpu_t *cpu)
     if (cpu->N)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -742,7 +742,7 @@ void bvc(cpu_t *cpu)
     if (!cpu->V)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -755,7 +755,7 @@ void bvs(cpu_t *cpu)
     if (cpu->V)
     {
         cpu->cycles++;
-        cpu->PC += (byte)cpu->read(cpu->address, cpu->console);
+        cpu->PC += (int8_t)cpu->read(cpu->address, cpu->console);
         page_crossed(cpu, cpu->PC);
         return;
     }
@@ -775,8 +775,8 @@ void jsr(cpu_t *cpu)
 {
     LOG_DEBUG("JSR");
 
-    ubyte low = (cpu->PC - 1) & 0xFF;
-    ubyte high = ((cpu->PC - 1) >> 8) & 0xFF;
+    uint8_t low = (cpu->PC - 1) & 0xFF;
+    uint8_t high = ((cpu->PC - 1) >> 8) & 0xFF;
 
     stack_push(cpu, low);
     stack_push(cpu, high);
@@ -788,8 +788,8 @@ void rts(cpu_t *cpu)
 {
     LOG_DEBUG("RTS");
 
-    ubyte low = stack_pull(cpu);
-    ubyte high = stack_pull(cpu);
+    uint8_t low = stack_pull(cpu);
+    uint8_t high = stack_pull(cpu);
 
     cpu->PC = high << 8 | low;
     cpu->PC++;
@@ -799,9 +799,9 @@ void brk(cpu_t *cpu)
 {
     LOG_DEBUG("BRK");
 
-    ubyte high = (cpu->PC >> 8) & 0xFF;
-    ubyte low = (cpu->PC) & 0xFF;
-    ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
+    uint8_t high = (cpu->PC >> 8) & 0xFF;
+    uint8_t low = (cpu->PC) & 0xFF;
+    uint8_t P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
 
     stack_push(cpu, high);
     stack_push(cpu, low);
@@ -819,9 +819,9 @@ void rti(cpu_t *cpu)
 {
     LOG_DEBUG("RTI");
 
-    ubyte P = stack_pull(cpu);
-    ubyte low = stack_pull(cpu);
-    ubyte high = stack_pull(cpu);
+    uint8_t P = stack_pull(cpu);
+    uint8_t low = stack_pull(cpu);
+    uint8_t high = stack_pull(cpu);
 
     LOG_DEBUG("register(flags)-P: ");
     print_binary(P);
@@ -859,7 +859,7 @@ void php(cpu_t *cpu)
 {
     LOG_DEBUG("PHP");
 
-    ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
+    uint8_t P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
     stack_push(cpu, P);
 
     LOG_DEBUG("register(flags)-P: ");
@@ -870,7 +870,7 @@ void plp(cpu_t *cpu)
 {
     LOG_DEBUG("PLP");
 
-    ubyte P = stack_pull(cpu);
+    uint8_t P = stack_pull(cpu);
 
     LOG_DEBUG("register(flags)-P: ");
     print_binary(P);

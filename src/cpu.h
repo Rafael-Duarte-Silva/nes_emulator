@@ -2,8 +2,8 @@
 #define CPU_H
 
 #include "utils/log.h"
-#include "types.h"
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct console console_t;
 
@@ -28,10 +28,10 @@ typedef struct cpu
 {
     // Registers
     uint16_t PC; // Program Counter
-    ubyte SP;    // Stack Pointer
-    ubyte A;     // Accumulator
-    ubyte X;     // Index Register
-    ubyte Y;     // Index Register
+    uint8_t SP;  // Stack Pointer
+    uint8_t A;   // Accumulator
+    uint8_t X;   // Index Register
+    uint8_t Y;   // Index Register
 
     // Flags (Processor Status(P))
     bool C;      // Carry
@@ -45,18 +45,18 @@ typedef struct cpu
     bool N; // Negative
 
     console_t *console;
-    ubyte opcode;
+    uint8_t opcode;
     uint16_t address;
     ADDRESS_MODE mode;
-    ubyte cycles;
+    uint8_t cycles;
 
     void (*instructions[256])(struct cpu *cpu);
-    ubyte instructions_sizes[256];
-    ubyte instructions_modes[256];
-    ubyte instructions_cycles[256];
+    uint8_t instructions_sizes[256];
+    uint8_t instructions_modes[256];
+    uint8_t instructions_cycles[256];
 
-    ubyte (*read)(uint16_t address, console_t *console);
-    void (*write)(uint16_t address, ubyte data, console_t *console);
+    uint8_t (*read)(uint16_t address, console_t *console);
+    void (*write)(uint16_t address, uint8_t data, console_t *console);
 } cpu_t;
 
 void init_cpu(console_t *console, cpu_t *cpu);
@@ -69,15 +69,15 @@ void run_instructions(cpu_t *cpu);
 // -----------------------------
 
 uint16_t read_address(cpu_t *cpu, uint16_t address);
-ubyte stack_pull(cpu_t *cpu);
-void stack_push(cpu_t *cpu, ubyte data);
+uint8_t stack_pull(cpu_t *cpu);
+void stack_push(cpu_t *cpu, uint8_t data);
 uint16_t page_crossed(cpu_t *cpu, uint16_t new_address);
 
 // -----------------------------
 // DEBUG
 // -----------------------------
 
-void print_binary(ubyte value);
+void print_binary(uint8_t value);
 
 // -----------------------------
 // ACESS

@@ -1,6 +1,6 @@
 #include "ppu_bus.h"
 
-void ppu_bus_write(uint16_t address, ubyte data, console_t *console)
+void ppu_bus_write(uint16_t address, uint8_t data, console_t *console)
 {
     if (address < 0x2000)
     {
@@ -13,7 +13,7 @@ void ppu_bus_write(uint16_t address, ubyte data, console_t *console)
     }
 }
 
-ubyte ppu_bus_read(uint16_t address, console_t *console)
+uint8_t ppu_bus_read(uint16_t address, console_t *console)
 {
     if (address < 0x2000)
     {

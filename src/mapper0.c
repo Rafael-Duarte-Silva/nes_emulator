@@ -23,7 +23,7 @@ void init_mapper0(cartrigde_t *cartrigde)
     cartrigde->mapper = (mapper_t *)mapper0;
 }
 
-ubyte read0(uint16_t address, cartrigde_t *cartrigde)
+uint8_t read0(uint16_t address, cartrigde_t *cartrigde)
 {
     if (address < 0x2000)
     {
@@ -45,7 +45,7 @@ ubyte read0(uint16_t address, cartrigde_t *cartrigde)
     }
 }
 
-void write0(uint16_t address, ubyte data, cartrigde_t *cartrigde)
+void write0(uint16_t address, uint8_t data, cartrigde_t *cartrigde)
 {
     if (address < 0x2000)
     {

@@ -40,7 +40,7 @@ void reset_ppu(ppu_t *ppu)
     ppu->PPUSCROLL = 0;
 }
 
-ubyte read_registers(uint16_t address, ppu_t *ppu)
+uint8_t read_registers(uint16_t address, ppu_t *ppu)
 {
     LOG_DEBUG("PPU-address(read): %#X", address);
 
@@ -64,7 +64,7 @@ ubyte read_registers(uint16_t address, ppu_t *ppu)
     return 0x00;
 }
 
-void write_registers(uint16_t address, ubyte data, ppu_t *ppu)
+void write_registers(uint16_t address, uint8_t data, ppu_t *ppu)
 {
     LOG_DEBUG("PPU-address(write): %#X", address);
 
@@ -103,7 +103,7 @@ void write_registers(uint16_t address, ubyte data, ppu_t *ppu)
     }
 }
 
-ubyte get_increment_vram(ubyte key)
+uint8_t get_increment_vram(uint8_t key)
 {
     if (key > 1)
         return -1;
@@ -114,7 +114,7 @@ ubyte get_increment_vram(ubyte key)
 }
 
 // 0x2000
-void ppu_ctrl(ubyte data, ppu_t *ppu)
+void ppu_ctrl(uint8_t data, ppu_t *ppu)
 {
     ppu->T &= 0xF3FF;
     ppu->T |= (data & 0x03) << 10;
@@ -129,7 +129,7 @@ void ppu_ctrl(ubyte data, ppu_t *ppu)
 }
 
 // 0x2001
-void ppu_mask(ubyte data, ppu_t *ppu)
+void ppu_mask(uint8_t data, ppu_t *ppu)
 {
     ppu->mask.blue = (data >> 7) & 0x01;
     ppu->mask.green = (data >> 6) & 0x01;
@@ -142,7 +142,7 @@ void ppu_mask(ubyte data, ppu_t *ppu)
 }
 
 // 0x2002
-ubyte ppu_status(ppu_t *ppu)
+uint8_t ppu_status(ppu_t *ppu)
 {
     ppu->W = 0;
     uint8_t result = ppu->status.v_blank << 7 | ppu->status.sprite_0_hit << 6 | ppu->status.sprite_overflow << 5;
@@ -151,26 +151,26 @@ ubyte ppu_status(ppu_t *ppu)
 }
 
 // 0x2003
-void oam_addr(ubyte address, ppu_t *ppu)
+void oam_addr(uint8_t address, ppu_t *ppu)
 {
     ppu->OAMADDR = address;
 }
 
 // 0x2004
-void oam_data_write(ubyte data, ppu_t *ppu)
+void oam_data_write(uint8_t data, ppu_t *ppu)
 {
     ppu->OAM[ppu->OAMADDR] = data;
     ppu->OAMADDR++;
 }
 
 // 0x2004
-ubyte oam_data_read(ppu_t *ppu)
+uint8_t oam_data_read(ppu_t *ppu)
 {
     return ppu->OAM[ppu->OAMADDR];
 }
 
 // 0x2005
-void ppu_scroll(ubyte data, ppu_t *ppu)
+void ppu_scroll(uint8_t data, ppu_t *ppu)
 {
     ppu->PPUSCROLL = data;
 
@@ -193,7 +193,7 @@ void ppu_scroll(ubyte data, ppu_t *ppu)
 }
 
 // 0x2006
-void ppu_addr(ubyte address, ppu_t *ppu)
+void ppu_addr(uint8_t address, ppu_t *ppu)
 {
     if (ppu->W == 0)
     {
@@ -210,16 +210,16 @@ void ppu_addr(ubyte address, ppu_t *ppu)
 }
 
 // 0x2007
-void ppu_data_write(ubyte data, ppu_t *ppu)
+void ppu_data_write(uint8_t data, ppu_t *ppu)
 {
     ppu_bus_write(ppu->V, data, ppu->console);
     ppu->V += get_increment_vram(ppu->ctrl.vram_address);
 }
 
 // 0x2007
-ubyte ppu_data_read(ppu_t *ppu)
+uint8_t ppu_data_read(ppu_t *ppu)
 {
-    const ubyte data = ppu_bus_read(ppu->V, ppu->console);
+    const uint8_t data = ppu_bus_read(ppu->V, ppu->console);
     ppu->V += get_increment_vram(ppu->ctrl.vram_address);
 
     return data;

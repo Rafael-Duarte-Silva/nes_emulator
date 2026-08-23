@@ -23,13 +23,13 @@
 
 uint8_t memory[0x10000];
 
-ubyte bus_read(uint16_t address, console_t *console)
+uint8_t bus_read(uint16_t address, console_t *console)
 {
     (void)console;
     return memory[address];
 }
 
-void bus_write(uint16_t address, ubyte data, console_t *console)
+void bus_write(uint16_t address, uint8_t data, console_t *console)
 {
     (void)console;
     // This is the only mock bus write path: the data is stored at this address.
@@ -46,12 +46,12 @@ void ulogger_log(LOG_LEVEL level, const char *fmt, ...)
 // HELPERS
 // -----------------------------
 
-static void write_test_memory(uint16_t address, ubyte data)
+static void write_test_memory(uint16_t address, uint8_t data)
 {
     memory[address] = data;
 }
 
-static ubyte read_test_memory(uint16_t address)
+static uint8_t read_test_memory(uint16_t address)
 {
     return memory[address];
 }
@@ -75,7 +75,7 @@ static ubyte read_test_memory(uint16_t address)
  *   - "address" is the effective address already calculated by the test.
  *   - "data" is the byte that the instruction is expected to read.
  */
-static void set_test_operand(cpu_t *cpu, uint16_t address, ubyte data)
+static void set_test_operand(cpu_t *cpu, uint16_t address, uint8_t data)
 {
     cpu->address = address;
     write_test_memory(address, data);
@@ -108,7 +108,7 @@ static void set_all_flags(cpu_t *cpu)
 /**
  * Checks a memory location without repeating the expression "memory[address]".
  */
-static void assert_memory_data(uint16_t address, ubyte expected)
+static void assert_memory_data(uint16_t address, uint8_t expected)
 {
     assert(read_test_memory(address) == expected);
 }
@@ -2600,7 +2600,7 @@ static void test_stack_pull(void)
 
     cpu.SP = TEST_MAX_BYTE;
     write_test_memory(TEST_STACK_PAGE, 0x12);
-    ubyte data = stack_pull(&cpu);
+    uint8_t data = stack_pull(&cpu);
 
     assert(cpu.SP == TEST_ZERO);
     assert(data == 0x12);

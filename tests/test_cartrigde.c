@@ -23,7 +23,7 @@
  * MOCKS
  * ========================================================================== */
 
-void init_mapper(cartrigde_t *cartrigde, ubyte mapper_type)
+void init_mapper(cartrigde_t *cartrigde, uint8_t mapper_type)
 {
     (void)cartrigde;
     (void)mapper_type;
@@ -83,7 +83,7 @@ typedef struct
     int truncate_chr;
 
     /*
-     * If true, the file will contain fewer than 16 bytes.
+     * If true, the file will contain fewer than 16 int8s.
      */
     int invalid_size;
 
@@ -106,8 +106,8 @@ static void fill_data(
 {
     for (size_t i = 0; i < size; i++)
     {
-        uint8_t byte = data;
-        assert(fwrite(&byte, 1, 1, file) == 1);
+        uint8_t int8_t = data;
+        assert(fwrite(&int8_t, 1, 1, file) == 1);
     }
 }
 
@@ -479,7 +479,7 @@ static const rom_test_case_t tests[] =
          * ------------------------------------------------------------------------
          */
 
-        {.name = "header smaller than 16 bytes", .filename = ROM_DIRECTORY "/small_header.nes",
+        {.name = "header smaller than 16 int8s", .filename = ROM_DIRECTORY "/small_header.nes",
 
          .expectation = ROM_INVALID,
 

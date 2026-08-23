@@ -54,7 +54,7 @@ void load_cartrigde(cartrigde_t *cartrigde, const char rom_name[])
         return;
     }
 
-    ubyte mapper_type =
+    uint8_t mapper_type =
         (((cartrigde->ROM_CONTROL_TWO >> 4) & 0x0F) << 4) |
         ((cartrigde->ROM_CONTROL_ONE >> 4) & 0x0F);
 
@@ -178,7 +178,7 @@ bool load_prg_rom(FILE *rom, cartrigde_t *cartrigde, long rom_size)
     cartrigde->PRG_ROM = malloc(cartrigde->PRG_ROM_size);
     if (cartrigde->PRG_ROM == NULL)
     {
-        fprintf(stderr, "Could not allocate PRG-ROM (%u bytes)\n", cartrigde->PRG_ROM_size);
+        fprintf(stderr, "Could not allocate PRG-ROM (%u int8s)\n", cartrigde->PRG_ROM_size);
         cartrigde->PRG_ROM_size = 0;
         return false;
     }
@@ -229,7 +229,7 @@ bool load_chr_rom(FILE *rom, cartrigde_t *cartrigde, long rom_size)
     cartrigde->CHR_ROM = malloc(cartrigde->CHR_ROM_size);
     if (cartrigde->CHR_ROM == NULL)
     {
-        fprintf(stderr, "Could not allocate CHR-ROM (%u bytes)\n", cartrigde->CHR_ROM_size);
+        fprintf(stderr, "Could not allocate CHR-ROM (%u int8s)\n", cartrigde->CHR_ROM_size);
         cartrigde->CHR_ROM_size = 0;
         return false;
     }
@@ -271,7 +271,7 @@ bool load_prg_ram(cartrigde_t *cartrigde)
     cartrigde->PRG_RAM = malloc(cartrigde->PRG_RAM_size);
     if (cartrigde->PRG_RAM == NULL)
     {
-        fprintf(stderr, "Could not allocate PRG-RAM (%u bytes)\n", cartrigde->PRG_RAM_size);
+        fprintf(stderr, "Could not allocate PRG-RAM (%u int8s)\n", cartrigde->PRG_RAM_size);
         cartrigde->PRG_RAM_size = 0;
         return false;
     }

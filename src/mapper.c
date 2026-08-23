@@ -2,7 +2,7 @@
 #include "mapper.h"
 #include "mapper0.h"
 
-void init_mapper(cartrigde_t *cartrigde, ubyte mapper_type)
+void init_mapper(cartrigde_t *cartrigde, uint8_t mapper_type)
 {
     switch (mapper_type)
     {
