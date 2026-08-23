@@ -48,14 +48,10 @@ uint8_t read_registers(uint16_t address, ppu_t *ppu)
     {
     case 0x2002:
         return ppu_status(ppu);
-
     case 0x2004:
         return oam_data_read(ppu);
-        break;
-
     case 0x2007:
         return ppu_data_read(ppu);
-        break;
 
     default:
         break;
@@ -76,27 +72,27 @@ void write_registers(uint16_t address, uint8_t data, ppu_t *ppu)
 
     case 0x2001:
         ppu_mask(data, ppu);
-        break;
+        return;
 
     case 0x2003:
         oam_addr(data, ppu);
-        break;
+        return;
 
     case 0x2004:
         oam_data_write(data, ppu);
-        break;
+        return;
 
     case 0x2005:
         ppu_scroll(data, ppu);
-        break;
+        return;
 
     case 0x2006:
         ppu_addr(data, ppu);
-        break;
+        return;
 
     case 0x2007:
         ppu_data_write(data, ppu);
-        break;
+        return;
 
     default:
         break;

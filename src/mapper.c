@@ -9,7 +9,7 @@ void init_mapper(cartrigde_t *cartrigde, uint8_t mapper_type)
     case 0:
         LOG_DEBUG("MAPPER-0 has been initialized\n");
         init_mapper0(cartrigde);
-        break;
+        return;
 
     default:
         break;

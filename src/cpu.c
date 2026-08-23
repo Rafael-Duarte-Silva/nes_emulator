@@ -142,36 +142,36 @@ void set_address_modes(cpu_t *cpu)
     case ABSOLUTE:
         LOG_DEBUG("ABSOLUTE");
         cpu->address = read_address(cpu, cpu->PC + 1);
-        break;
+        return;
     case ABSOLUTE_X:
         LOG_DEBUG("ABSOLUTE_X");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
-        break;
+        return;
 
     case ABSOLUTE_Y:
         LOG_DEBUG("ABSOLUTE_Y");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
-        break;
+        return;
 
     case ACCUMULATOR:
         LOG_DEBUG("ACCUMULATOR");
         cpu->address = 0;
-        break;
+        return;
 
     case IMMEDIATE:
         LOG_DEBUG("IMMEDIATE");
         cpu->address = cpu->PC + 1;
-        break;
+        return;
 
     case IMPLIED:
         LOG_DEBUG("IMPLIED");
         cpu->address = 0;
-        break;
+        return;
 
     case INDEXED_INDIRECT:
         LOG_DEBUG("INDEXED_INDIRECT");
         cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console) + cpu->X);
-        break;
+        return;
 
     case INDIRECT:
         LOG_DEBUG("INDIRECT");
@@ -183,27 +183,27 @@ void set_address_modes(cpu_t *cpu)
         cpu->address = page_crossed(
             cpu,
             read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y);
-        break;
+        return;
 
     case RELATIVE:
         LOG_DEBUG("RELATIVE");
         cpu->address = 0;
-        break;
+        return;
 
     case ZERO_PAGE:
         LOG_DEBUG("ZERO_PAGE");
         cpu->address = cpu->read(cpu->PC + 1, cpu->console);
-        break;
+        return;
 
     case ZERO_PAGE_X:
         LOG_DEBUG("ZERO_PAGE_X");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->X) % 0x00FF;
-        break;
+        return;
 
     case ZERO_PAGE_Y:
         LOG_DEBUG("ZERO_PAGE_Y");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->Y) % 0x00FF;
-        break;
+        return;
 
     default:
         break;

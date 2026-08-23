@@ -9,7 +9,7 @@ uint8_t bus_read(uint16_t address, console_t *console)
 
     if (address < 0x4000)
     {
-        return console->PPU->read_registers(address + 0x2000 % 8, console->PPU);
+        return console->PPU->read_registers(address % 8 + 0x2000, console->PPU);
     }
 
     if (address >= 0x4020)
@@ -28,7 +28,7 @@ void bus_write(uint16_t address, uint8_t data, console_t *console)
 
     if (address < 0x4000)
     {
-        console->PPU->write_registers(address + 0x2000 % 8, data, console->PPU);
+        console->PPU->write_registers(address % 8 + 0x2000, data, console->PPU);
         return;
     }
 
