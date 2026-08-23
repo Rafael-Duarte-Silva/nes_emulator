@@ -26,8 +26,6 @@ int main(int argc, char *argv[])
     while (1)
     {
         run_instructions(&cpu);
-
-        getchar();
     }
 
     free(cartrigde.mapper);

@@ -254,7 +254,7 @@ void run_instructions(cpu_t *cpu)
     LOG_DEBUG("register(flag)-B: %#X", cpu->B);
     LOG_DEBUG("register(flag)-D: %#X", cpu->D);
     LOG_DEBUG("mem-%d: %#X", cpu->address, cpu->read(cpu->address, cpu->console));
-    LOG_DEBUG("--- CPU END CYCLE ---", cpu->address);
+    LOG_DEBUG("--- CPU END CYCLE ---\n", cpu->address);
 }
 
 // -----------------------------
