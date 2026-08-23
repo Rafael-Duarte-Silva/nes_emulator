@@ -1,6 +1,5 @@
 #include "mapper0.h"
 #include <stdlib.h>
-#include <stdio.h>
 
 void init_mapper0(cartrigde_t *cartrigde)
 {

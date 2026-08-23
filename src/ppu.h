@@ -1,6 +1,7 @@
 #ifndef PPU_H
 #define PPU_H
 
+#include "utils/log.h"
 #include "types.h"
 #include <stdbool.h>
 

@@ -36,6 +36,12 @@ void bus_write(uint16_t address, ubyte data, console_t *console)
     memory[address] = data;
 }
 
+void ulogger_log(LOG_LEVEL level, const char *fmt, ...)
+{
+    (void)level;
+    (void)fmt;
+}
+
 // -----------------------------
 // HELPERS
 // -----------------------------

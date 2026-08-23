@@ -1,7 +1,6 @@
 #include "ppu.h"
 #include "ppu_bus.h"
 #include "console.h"
-#include <stdio.h>
 
 void init_ppu(console_t *console, ppu_t *ppu)
 {
@@ -43,7 +42,7 @@ void reset_ppu(ppu_t *ppu)
 
 ubyte read_registers(uint16_t address, ppu_t *ppu)
 {
-    printf("\n\nPPU-address(read): %#X\n\n", address);
+    LOG_DEBUG("PPU-address(read): %#X", address);
 
     switch (address)
     {
@@ -67,7 +66,7 @@ ubyte read_registers(uint16_t address, ppu_t *ppu)
 
 void write_registers(uint16_t address, ubyte data, ppu_t *ppu)
 {
-    printf("\nPPU-address(write): %#X\n\n", address);
+    LOG_DEBUG("PPU-address(write): %#X", address);
 
     switch (address)
     {

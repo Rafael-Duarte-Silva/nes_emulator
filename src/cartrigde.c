@@ -1,6 +1,5 @@
 #include "cartrigde.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 void init_cartrigde(console_t *console, cartrigde_t *cartrigde, const char rom_name[])

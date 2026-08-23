@@ -1,5 +1,4 @@
 #include "bus.h"
-#include <stdio.h>
 
 ubyte bus_read(uint16_t address, console_t *console)
 {

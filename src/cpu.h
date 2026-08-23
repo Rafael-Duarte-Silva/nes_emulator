@@ -1,6 +1,7 @@
 #ifndef CPU_H
 #define CPU_H
 
+#include "utils/log.h"
 #include "types.h"
 #include <stdbool.h>
 

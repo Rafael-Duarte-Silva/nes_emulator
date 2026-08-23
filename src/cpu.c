@@ -1,6 +1,5 @@
 #include "cpu.h"
 #include "bus.h"
-#include <stdio.h>
 #include <string.h>
 
 void init_cpu(console_t *console, cpu_t *cpu)
@@ -121,9 +120,6 @@ void reset_cpu(cpu_t *cpu)
 {
     cpu->PC = read_address(cpu, 0xFFFC);
     cpu->SP = 0xFD;
-
-    printf("PC: %#X\n", cpu->PC);
-
     cpu->A = 0;
     cpu->X = 0;
     cpu->Y = 0;
@@ -144,68 +140,68 @@ void set_address_modes(cpu_t *cpu)
     switch (cpu->mode)
     {
     case ABSOLUTE:
-        printf("ABSOLUTE\n");
+        LOG_DEBUG("ABSOLUTE");
         cpu->address = read_address(cpu, cpu->PC + 1);
         break;
     case ABSOLUTE_X:
-        printf("ABSOLUTE_X\n");
+        LOG_DEBUG("ABSOLUTE_X");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
         break;
 
     case ABSOLUTE_Y:
-        printf("ABSOLUTE_Y\n");
+        LOG_DEBUG("ABSOLUTE_Y");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
         break;
 
     case ACCUMULATOR:
-        printf("ACCUMULATOR\n");
+        LOG_DEBUG("ACCUMULATOR");
         cpu->address = 0;
         break;
 
     case IMMEDIATE:
-        printf("IMMEDIATE\n");
+        LOG_DEBUG("IMMEDIATE");
         cpu->address = cpu->PC + 1;
         break;
 
     case IMPLIED:
-        printf("IMPLIED\n");
+        LOG_DEBUG("IMPLIED");
         cpu->address = 0;
         break;
 
     case INDEXED_INDIRECT:
-        printf("INDEXED_INDIRECT\n");
+        LOG_DEBUG("INDEXED_INDIRECT");
         cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console) + cpu->X);
         break;
 
     case INDIRECT:
-        printf("INDIRECT\n");
+        LOG_DEBUG("INDIRECT");
         cpu->address = read_address(cpu, read_address(cpu, cpu->PC + 1));
         break;
 
     case INDIRECT_INDEXED:
-        printf("INDIRECT_INDEXED\n");
+        LOG_DEBUG("INDIRECT_INDEXED");
         cpu->address = page_crossed(
             cpu,
             read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y);
         break;
 
     case RELATIVE:
-        printf("RELATIVE\n");
+        LOG_DEBUG("RELATIVE");
         cpu->address = 0;
         break;
 
     case ZERO_PAGE:
-        printf("ZERO_PAGE\n");
+        LOG_DEBUG("ZERO_PAGE");
         cpu->address = cpu->read(cpu->PC + 1, cpu->console);
         break;
 
     case ZERO_PAGE_X:
-        printf("ZERO_PAGE_X\n");
+        LOG_DEBUG("ZERO_PAGE_X");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->X) % 0x00FF;
         break;
 
     case ZERO_PAGE_Y:
-        printf("ZERO_PAGE_Y\n");
+        LOG_DEBUG("ZERO_PAGE_Y");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->Y) % 0x00FF;
         break;
 
@@ -216,6 +212,8 @@ void set_address_modes(cpu_t *cpu)
 
 void run_instructions(cpu_t *cpu)
 {
+    LOG_DEBUG("--- CPU START CYCLE ---", cpu->address);
+
     if (!cpu->delay_I)
     {
         cpu->I = cpu->temp_I;
@@ -233,31 +231,30 @@ void run_instructions(cpu_t *cpu)
 
     cpu->PC += cpu->instructions_sizes[cpu->opcode];
 
-    printf("address: %#X\n", cpu->address);
-    
     void (*instruction)(struct cpu *cpu) = cpu->instructions[cpu->opcode];
     if (instruction != NULL)
     {
         instruction(cpu);
     }
 
-    printf("opcode: %#X\n", cpu->opcode);
-    printf("size: %#X\n", cpu->instructions_sizes[cpu->opcode]);
-    printf("cycles: %#X\n", cpu->cycles);
-
-    printf("register-PC: %#X\n", cpu->PC);
-    printf("register-SP: %#X\n", cpu->SP);
-    printf("register-A: %#X\n", cpu->A);
-    printf("register-X: %#X\n", cpu->X);
-    printf("register-Y: %#X\n", cpu->Y);
-    printf("register(flag)-Z: %#X\n", cpu->Z);
-    printf("register(flag)-N: %#X\n", cpu->N);
-    printf("register(flag)-C: %#X\n", cpu->C);
-    printf("register(flag)-V: %#X\n", cpu->V);
-    printf("register(flag)-I: %#X\n", cpu->I);
-    printf("register(flag)-B: %#X\n", cpu->B);
-    printf("register(flag)-D: %#X\n", cpu->D);
-    printf("mem-%d: %#X\n", cpu->address, cpu->read(cpu->address, cpu->console));
+    LOG_DEBUG("address: %#X", cpu->address);
+    LOG_DEBUG("opcode: %#X", cpu->opcode);
+    LOG_DEBUG("size: %#X", cpu->instructions_sizes[cpu->opcode]);
+    LOG_DEBUG("cycles: %#X", cpu->cycles);
+    LOG_DEBUG("register-PC: %#X", cpu->PC);
+    LOG_DEBUG("register-SP: %#X", cpu->SP);
+    LOG_DEBUG("register-A: %#X", cpu->A);
+    LOG_DEBUG("register-X: %#X", cpu->X);
+    LOG_DEBUG("register-Y: %#X", cpu->Y);
+    LOG_DEBUG("register(flag)-Z: %#X", cpu->Z);
+    LOG_DEBUG("register(flag)-N: %#X", cpu->N);
+    LOG_DEBUG("register(flag)-C: %#X", cpu->C);
+    LOG_DEBUG("register(flag)-V: %#X", cpu->V);
+    LOG_DEBUG("register(flag)-I: %#X", cpu->I);
+    LOG_DEBUG("register(flag)-B: %#X", cpu->B);
+    LOG_DEBUG("register(flag)-D: %#X", cpu->D);
+    LOG_DEBUG("mem-%d: %#X", cpu->address, cpu->read(cpu->address, cpu->console));
+    LOG_DEBUG("--- CPU END CYCLE ---", cpu->address);
 }
 
 // -----------------------------
@@ -287,7 +284,7 @@ uint16_t page_crossed(cpu_t *cpu, uint16_t new_address)
 {
     if ((new_address & 0xFF00) != (cpu->address & 0xFF00))
     {
-        printf("\n--- CROSSED PAGE ---\n\n");
+        LOG_DEBUG("CROSSED PAGE");
         cpu->cycles++;
     }
 
@@ -302,7 +299,7 @@ void print_binary(ubyte value)
 {
     for (int i = 7; i >= 0; i--)
     {
-        printf("%d", value >> i & 0x01);
+        LOG_DEBUG("%d", value >> i & 0x01);
     }
 }
 
@@ -312,7 +309,7 @@ void print_binary(ubyte value)
 
 void lda(cpu_t *cpu)
 {
-    printf("LDA\n");
+    LOG_DEBUG("LDA");
     cpu->A = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -321,13 +318,13 @@ void lda(cpu_t *cpu)
 
 void sta(cpu_t *cpu)
 {
-    printf("STA\n");
+    LOG_DEBUG("STA");
     cpu->write(cpu->address, cpu->A, cpu->console);
 }
 
 void ldx(cpu_t *cpu)
 {
-    printf("LDX\n");
+    LOG_DEBUG("LDX");
     cpu->X = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->X == 0;
@@ -336,13 +333,13 @@ void ldx(cpu_t *cpu)
 
 void stx(cpu_t *cpu)
 {
-    printf("STX\n");
+    LOG_DEBUG("STX");
     cpu->write(cpu->address, cpu->X, cpu->console);
 }
 
 void ldy(cpu_t *cpu)
 {
-    printf("LDY\n");
+    LOG_DEBUG("LDY");
     cpu->Y = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->Y == 0;
@@ -351,7 +348,7 @@ void ldy(cpu_t *cpu)
 
 void sty(cpu_t *cpu)
 {
-    printf("STY\n");
+    LOG_DEBUG("STY");
     cpu->write(cpu->address, cpu->Y, cpu->console);
 }
 
@@ -361,7 +358,7 @@ void sty(cpu_t *cpu)
 
 void tax(cpu_t *cpu)
 {
-    printf("TAX\n");
+    LOG_DEBUG("TAX");
     cpu->X = cpu->A;
 
     cpu->Z = cpu->X == 0;
@@ -370,7 +367,7 @@ void tax(cpu_t *cpu)
 
 void txa(cpu_t *cpu)
 {
-    printf("TXA\n");
+    LOG_DEBUG("TXA");
     cpu->A = cpu->X;
 
     cpu->Z = cpu->A == 0;
@@ -379,7 +376,7 @@ void txa(cpu_t *cpu)
 
 void tay(cpu_t *cpu)
 {
-    printf("TAY\n");
+    LOG_DEBUG("TAY");
     cpu->Y = cpu->A;
 
     cpu->Z = cpu->Y == 0;
@@ -388,7 +385,7 @@ void tay(cpu_t *cpu)
 
 void tya(cpu_t *cpu)
 {
-    printf("TYA\n");
+    LOG_DEBUG("TYA");
     cpu->A = cpu->Y;
 
     cpu->Z = cpu->A == 0;
@@ -401,7 +398,7 @@ void tya(cpu_t *cpu)
 
 void adc(cpu_t *cpu)
 {
-    printf("ADC\n");
+    LOG_DEBUG("ADC");
     int16_t result = cpu->A + cpu->read(cpu->address, cpu->console) + cpu->C;
     cpu->C = result > 0xFF;
     cpu->V = (result ^ cpu->A) & (result ^ cpu->read(cpu->address, cpu->console)) & 0x80;
@@ -413,7 +410,7 @@ void adc(cpu_t *cpu)
 
 void sbc(cpu_t *cpu)
 {
-    printf("SBC\n");
+    LOG_DEBUG("SBC");
     int16_t result = cpu->A - cpu->read(cpu->address, cpu->console) - !cpu->C;
     cpu->C = !(result < 0);
     cpu->V = (result ^ cpu->A) & (result ^ ~cpu->read(cpu->address, cpu->console)) & 0x80;
@@ -425,7 +422,7 @@ void sbc(cpu_t *cpu)
 
 void inc(cpu_t *cpu)
 {
-    printf("INC\n");
+    LOG_DEBUG("INC");
     int16_t result = cpu->read(cpu->address, cpu->console) + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -435,7 +432,7 @@ void inc(cpu_t *cpu)
 
 void dec(cpu_t *cpu)
 {
-    printf("DEC\n");
+    LOG_DEBUG("DEC");
     int16_t result = cpu->read(cpu->address, cpu->console) - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -445,7 +442,7 @@ void dec(cpu_t *cpu)
 
 void inx(cpu_t *cpu)
 {
-    printf("INX\n");
+    LOG_DEBUG("INX");
     int16_t result = cpu->X + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -455,7 +452,7 @@ void inx(cpu_t *cpu)
 
 void dex(cpu_t *cpu)
 {
-    printf("DEX\n");
+    LOG_DEBUG("DEX");
     int16_t result = cpu->X - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -465,7 +462,7 @@ void dex(cpu_t *cpu)
 
 void iny(cpu_t *cpu)
 {
-    printf("INY\n");
+    LOG_DEBUG("INY");
     int16_t result = cpu->Y + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -475,7 +472,7 @@ void iny(cpu_t *cpu)
 
 void dey(cpu_t *cpu)
 {
-    printf("DEY\n");
+    LOG_DEBUG("DEY");
     int16_t result = cpu->Y - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -489,7 +486,7 @@ void dey(cpu_t *cpu)
 
 void asl(cpu_t *cpu)
 {
-    printf("ASL\n");
+    LOG_DEBUG("ASL");
 
     if (cpu->mode == ACCUMULATOR)
     {
@@ -512,7 +509,7 @@ void asl(cpu_t *cpu)
 
 void lsr(cpu_t *cpu)
 {
-    printf("LSR\n");
+    LOG_DEBUG("LSR");
 
     if (cpu->mode == ACCUMULATOR)
     {
@@ -535,7 +532,7 @@ void lsr(cpu_t *cpu)
 
 void rol(cpu_t *cpu)
 {
-    printf("ROL\n");
+    LOG_DEBUG("ROL");
 
     if (cpu->mode == ACCUMULATOR)
     {
@@ -559,7 +556,7 @@ void rol(cpu_t *cpu)
 
 void ror(cpu_t *cpu)
 {
-    printf("ROR\n");
+    LOG_DEBUG("ROR");
 
     if (cpu->mode == ACCUMULATOR)
     {
@@ -587,7 +584,7 @@ void ror(cpu_t *cpu)
 
 void and(cpu_t *cpu)
 {
-    printf("AND\n");
+    LOG_DEBUG("AND");
     cpu->A &= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -596,7 +593,7 @@ void and(cpu_t *cpu)
 
 void ora(cpu_t *cpu)
 {
-    printf("ORA\n");
+    LOG_DEBUG("ORA");
     cpu->A |= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -605,7 +602,7 @@ void ora(cpu_t *cpu)
 
 void eor(cpu_t *cpu)
 {
-    printf("EOR\n");
+    LOG_DEBUG("EOR");
     cpu->A ^= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -614,7 +611,7 @@ void eor(cpu_t *cpu)
 
 void bit(cpu_t *cpu)
 {
-    printf("BIT\n");
+    LOG_DEBUG("BIT");
     ubyte result = cpu->A & cpu->read(cpu->address, cpu->console);
 
     cpu->Z = result == 0;
@@ -628,7 +625,7 @@ void bit(cpu_t *cpu)
 
 void cmp(cpu_t *cpu)
 {
-    printf("CMP\n");
+    LOG_DEBUG("CMP");
     ubyte result = cpu->A - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->A >= cpu->read(cpu->address, cpu->console);
@@ -638,7 +635,7 @@ void cmp(cpu_t *cpu)
 
 void cpx(cpu_t *cpu)
 {
-    printf("CPX\n");
+    LOG_DEBUG("CPX");
     ubyte result = cpu->X - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->X >= cpu->read(cpu->address, cpu->console);
@@ -648,7 +645,7 @@ void cpx(cpu_t *cpu)
 
 void cpy(cpu_t *cpu)
 {
-    printf("CPY\n");
+    LOG_DEBUG("CPY");
     ubyte result = cpu->Y - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->Y >= cpu->read(cpu->address, cpu->console);
@@ -662,7 +659,7 @@ void cpy(cpu_t *cpu)
 
 void bcc(cpu_t *cpu)
 {
-    printf("BCC\n");
+    LOG_DEBUG("BCC");
 
     if (!cpu->C)
     {
@@ -675,7 +672,7 @@ void bcc(cpu_t *cpu)
 
 void bcs(cpu_t *cpu)
 {
-    printf("BSC\n");
+    LOG_DEBUG("BSC");
 
     if (cpu->C)
     {
@@ -688,7 +685,7 @@ void bcs(cpu_t *cpu)
 
 void beq(cpu_t *cpu)
 {
-    printf("BEQ\n");
+    LOG_DEBUG("BEQ");
 
     if (cpu->Z)
     {
@@ -701,7 +698,7 @@ void beq(cpu_t *cpu)
 
 void bne(cpu_t *cpu)
 {
-    printf("BNE\n");
+    LOG_DEBUG("BNE");
 
     if (!cpu->Z)
     {
@@ -714,7 +711,7 @@ void bne(cpu_t *cpu)
 
 void bpl(cpu_t *cpu)
 {
-    printf("BPL\n");
+    LOG_DEBUG("BPL");
 
     if (!cpu->N)
     {
@@ -727,7 +724,7 @@ void bpl(cpu_t *cpu)
 
 void bmi(cpu_t *cpu)
 {
-    printf("BMI\n");
+    LOG_DEBUG("BMI");
 
     if (cpu->N)
     {
@@ -740,7 +737,7 @@ void bmi(cpu_t *cpu)
 
 void bvc(cpu_t *cpu)
 {
-    printf("BVC\n");
+    LOG_DEBUG("BVC");
 
     if (!cpu->V)
     {
@@ -753,7 +750,7 @@ void bvc(cpu_t *cpu)
 
 void bvs(cpu_t *cpu)
 {
-    printf("BVS\n");
+    LOG_DEBUG("BVS");
 
     if (cpu->V)
     {
@@ -770,13 +767,13 @@ void bvs(cpu_t *cpu)
 
 void jmp(cpu_t *cpu)
 {
-    printf("JUMP\n");
+    LOG_DEBUG("JUMP");
     cpu->PC = cpu->address;
 }
 
 void jsr(cpu_t *cpu)
 {
-    printf("JSR\n");
+    LOG_DEBUG("JSR");
 
     ubyte low = (cpu->PC - 1) & 0xFF;
     ubyte high = ((cpu->PC - 1) >> 8) & 0xFF;
@@ -789,7 +786,7 @@ void jsr(cpu_t *cpu)
 
 void rts(cpu_t *cpu)
 {
-    printf("RTS\n");
+    LOG_DEBUG("RTS");
 
     ubyte low = stack_pull(cpu);
     ubyte high = stack_pull(cpu);
@@ -800,7 +797,7 @@ void rts(cpu_t *cpu)
 
 void brk(cpu_t *cpu)
 {
-    printf("BRK\n");
+    LOG_DEBUG("BRK");
 
     ubyte high = (cpu->PC >> 8) & 0xFF;
     ubyte low = (cpu->PC) & 0xFF;
@@ -810,9 +807,8 @@ void brk(cpu_t *cpu)
     stack_push(cpu, low);
     stack_push(cpu, P);
 
-    printf("register(flags)-P: ");
+    LOG_DEBUG("register(flags)-P: ");
     print_binary(P);
-    printf("\n");
 
     cpu->PC = read_address(cpu, 0xFFFE);
 
@@ -821,15 +817,14 @@ void brk(cpu_t *cpu)
 
 void rti(cpu_t *cpu)
 {
-    printf("RTI\n");
+    LOG_DEBUG("RTI");
 
     ubyte P = stack_pull(cpu);
     ubyte low = stack_pull(cpu);
     ubyte high = stack_pull(cpu);
 
-    printf("register(flags)-P: ");
+    LOG_DEBUG("register(flags)-P: ");
     print_binary(P);
-    printf("\n");
 
     cpu->PC = high << 8 | low;
 
@@ -847,13 +842,13 @@ void rti(cpu_t *cpu)
 
 void pha(cpu_t *cpu)
 {
-    printf("PHA\n");
+    LOG_DEBUG("PHA");
     stack_push(cpu, cpu->A);
 }
 
 void pla(cpu_t *cpu)
 {
-    printf("PLA\n");
+    LOG_DEBUG("PLA");
     cpu->A = stack_pull(cpu);
 
     cpu->Z = cpu->A == 0;
@@ -862,25 +857,23 @@ void pla(cpu_t *cpu)
 
 void php(cpu_t *cpu)
 {
-    printf("PHP\n");
+    LOG_DEBUG("PHP");
 
     ubyte P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
     stack_push(cpu, P);
 
-    printf("register(flags)-P: ");
+    LOG_DEBUG("register(flags)-P: ");
     print_binary(P);
-    printf("\n");
 }
 
 void plp(cpu_t *cpu)
 {
-    printf("PLP\n");
+    LOG_DEBUG("PLP");
 
     ubyte P = stack_pull(cpu);
 
-    printf("register(flags)-P: ");
+    LOG_DEBUG("register(flags)-P: ");
     print_binary(P);
-    printf("\n");
 
     cpu->N = P >> 7 & 0x01;
     cpu->V = P >> 6 & 0x01;
@@ -893,13 +886,13 @@ void plp(cpu_t *cpu)
 
 void txs(cpu_t *cpu)
 {
-    printf("TXS\n");
+    LOG_DEBUG("TXS");
     cpu->SP = cpu->X;
 }
 
 void tsx(cpu_t *cpu)
 {
-    printf("TSX\n");
+    LOG_DEBUG("TSX");
     cpu->X = cpu->SP;
 
     cpu->Z = cpu->X == 0;
@@ -912,45 +905,45 @@ void tsx(cpu_t *cpu)
 
 void clc(cpu_t *cpu)
 {
-    printf("CLC\n");
+    LOG_DEBUG("CLC");
     cpu->C = false;
 }
 
 void sec(cpu_t *cpu)
 {
-    printf("SEC\n");
+    LOG_DEBUG("SEC");
     cpu->C = true;
 }
 
 void cli(cpu_t *cpu)
 {
-    printf("CLI\n");
+    LOG_DEBUG("CLI");
     cpu->temp_I = false;
     cpu->delay_I = true;
 }
 
 void sei(cpu_t *cpu)
 {
-    printf("SEI\n");
+    LOG_DEBUG("SEI");
     cpu->temp_I = true;
     cpu->delay_I = true;
 }
 
 void cld(cpu_t *cpu)
 {
-    printf("CLD\n");
+    LOG_DEBUG("CLD");
     cpu->D = false;
 }
 
 void sed(cpu_t *cpu)
 {
-    printf("SED\n");
+    LOG_DEBUG("SED");
     cpu->D = true;
 }
 
 void clv(cpu_t *cpu)
 {
-    printf("CLV\n");
+    LOG_DEBUG("CLV");
     cpu->V = false;
 }
 
@@ -961,5 +954,5 @@ void clv(cpu_t *cpu)
 void nop(cpu_t *cpu)
 {
     (void)cpu;
-    printf("NOP\n");
+    LOG_DEBUG("NOP");
 }

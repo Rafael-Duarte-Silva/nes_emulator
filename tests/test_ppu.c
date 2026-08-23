@@ -34,6 +34,12 @@ ubyte ppu_bus_read(uint16_t address, console_t *console)
     return memory[address];
 }
 
+void ulogger_log(LOG_LEVEL level, const char *fmt, ...)
+{
+    (void)level;
+    (void)fmt;
+}
+
 // -----------------------------
 // HELPERS
 // -----------------------------
