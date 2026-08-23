@@ -2,18 +2,14 @@ CC = gcc
 
 CFLAGS = -Wall -Wextra -std=c11 -Isrc
 
-HEADERDIR = src/
 SOURCEDIR = src/
 TESTDIR = tests/
 BINDIR = bin/
 
-HEADER_FILES = types.h console.h cpu.h ppu.h ppu_bus.h bus.h cartrigde.h mapper.h mapper0.h
-SOURCE_FILES = main.c console.c cpu.c ppu.c ppu_bus.c bus.c cartrigde.c mapper.c mapper0.c
+HEADERS_FP := $(shell find $(SOURCEDIR) -type f -name "*.h")
+SOURCE_FP := $(shell find $(SOURCEDIR) -type f -name "*.c")
 
-HEADERS_FP = $(addprefix $(HEADERDIR),$(HEADER_FILES))
-SOURCE_FP = $(addprefix $(SOURCEDIR),$(SOURCE_FILES))
-
-OBJECTS = $(SOURCE_FILES:%.c=$(BINDIR)%.o)
+OBJECTS := $(patsubst $(SOURCEDIR)/%.c,$(BINDIR)%.o,$(SOURCE_FP))
 
 EXECUTABLE = $(BINDIR)main
 
@@ -35,9 +31,9 @@ PPU_TEST_OBJECTS = \
 
 CARTRIGDE_TEST_OBJECTS = \
 	$(BINDIR)test_cartrigde.o \
-	$(BINDIR)cartrigde.o \
+	$(BINDIR)cartrigde.o 
 
-.PHONY: all main clean test test_cpu test_cartrigde
+.PHONY: main clean test test_cpu test_cartrigde test_ppu
 
 $(BINDIR)test_%.o: $(TESTDIR)test_%.c $(HEADERS_FP) | $(BINDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
@@ -46,10 +42,7 @@ $(BINDIR)test_%.o: $(TESTDIR)test_%.c $(HEADERS_FP) | $(BINDIR)
 # PROGRAM
 # =========================================================
 
-all: $(EXECUTABLE)
-
 main: $(EXECUTABLE)
-	./$(EXECUTABLE)
 
 $(EXECUTABLE): $(OBJECTS) | $(BINDIR)
 	$(CC) $(OBJECTS) -o $@
@@ -64,7 +57,7 @@ $(BINDIR)%.o: $(SOURCEDIR)%.c $(HEADERS_FP) | $(BINDIR)
 test_cpu: $(CPU_TEST_EXECUTABLE)
 	./$(CPU_TEST_EXECUTABLE)
 
-$(CPU_TEST_EXECUTABLE): $(CPU_TEST_OBJECTS)
+$(CPU_TEST_EXECUTABLE): $(CPU_TEST_OBJECTS) | $(BINDIR)
 	$(CC) $(CPU_TEST_OBJECTS) -o $@
 
 # =========================================================
@@ -74,7 +67,7 @@ $(CPU_TEST_EXECUTABLE): $(CPU_TEST_OBJECTS)
 test_ppu: $(PPU_TEST_EXECUTABLE)
 	./$(PPU_TEST_EXECUTABLE)
 
-$(PPU_TEST_EXECUTABLE): $(PPU_TEST_OBJECTS)
+$(PPU_TEST_EXECUTABLE): $(PPU_TEST_OBJECTS) | $(BINDIR)
 	$(CC) $(PPU_TEST_OBJECTS) -o $@
 
 # =========================================================
@@ -84,14 +77,14 @@ $(PPU_TEST_EXECUTABLE): $(PPU_TEST_OBJECTS)
 test_cartrigde: $(CARTRIGDE_TEST_EXECUTABLE)
 	./$(CARTRIGDE_TEST_EXECUTABLE)
 
-$(CARTRIGDE_TEST_EXECUTABLE): $(CARTRIGDE_TEST_OBJECTS)
+$(CARTRIGDE_TEST_EXECUTABLE): $(CARTRIGDE_TEST_OBJECTS) | $(BINDIR)
 	$(CC) $(CARTRIGDE_TEST_OBJECTS) -o $@
 
 # =========================================================
 # RUN ALL TESTS
 # =========================================================
 
-test: test_cpu test_cartrigde
+test: test_cpu test_cartrigde test_ppu
 
 # =========================================================
 # BIN
