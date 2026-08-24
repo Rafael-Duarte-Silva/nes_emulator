@@ -74,12 +74,6 @@ void stack_push(cpu_t *cpu, uint8_t data);
 uint16_t page_crossed(cpu_t *cpu, uint16_t new_address);
 
 // -----------------------------
-// DEBUG
-// -----------------------------
-
-void print_binary(uint8_t value);
-
-// -----------------------------
 // ACESS
 // -----------------------------
 

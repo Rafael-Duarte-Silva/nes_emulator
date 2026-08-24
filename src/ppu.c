@@ -42,8 +42,6 @@ void reset_ppu(ppu_t *ppu)
 
 uint8_t read_registers(uint16_t address, ppu_t *ppu)
 {
-    LOG_DEBUG("PPU-address(read): %#X", address);
-
     switch (address)
     {
     case 0x2002:
@@ -62,8 +60,6 @@ uint8_t read_registers(uint16_t address, ppu_t *ppu)
 
 void write_registers(uint16_t address, uint8_t data, ppu_t *ppu)
 {
-    LOG_DEBUG("PPU-address(write): %#X", address);
-
     switch (address)
     {
     case 0x2000:

@@ -2,6 +2,80 @@
 #include "bus.h"
 #include <string.h>
 
+// clang-format off
+static const char *instructions_names[256] = {
+    "BRK","ORA",NULL,NULL,"NOP","ORA","ASL",NULL,
+    "PHP","ORA","ASL",NULL,"NOP","ORA","ASL",NULL,
+    "BPL","ORA",NULL,NULL,"NOP","ORA","ASL",NULL,
+    "CLC","ORA","NOP",NULL,"NOP","ORA","ASL",NULL,
+    "JSR","AND",NULL,NULL,"BIT","AND","ROL",NULL,
+    "PLP","AND","ROL",NULL,"BIT","AND","ROL",NULL,
+    "BMI","AND",NULL,NULL,"NOP","AND","ROL",NULL,
+    "SEC","AND","NOP",NULL,"NOP","AND","ROL",NULL,
+    "RTI","EOR",NULL,NULL,"NOP","EOR","LSR",NULL,
+    "PHA","EOR","LSR",NULL,"JMP","EOR","LSR",NULL,
+    "BVC","EOR",NULL,NULL,"NOP","EOR","LSR",NULL,
+    "CLI","EOR","NOP",NULL,"NOP","EOR","LSR",NULL,
+    "RTS","ADC",NULL,NULL,"NOP","ADC","ROR",NULL,
+    "PLA","ADC","ROR",NULL,"JMP","ADC","ROR",NULL,
+    "BVS","ADC",NULL,NULL,"NOP","ADC","ROR",NULL,
+    "SEI","ADC","NOP",NULL,"NOP","ADC","ROR",NULL,
+    "NOP","STA","NOP",NULL,"STY","STA","STX",NULL,
+    "DEY","NOP","TXA",NULL,"STY","STA","STX",NULL,
+    "BCC","STA",NULL,NULL,"STY","STA","STX",NULL,
+    "TYA","STA","TXS",NULL,NULL,"STA",NULL,NULL,
+    "LDY","LDA","LDX",NULL,"LDY","LDA","LDX",NULL,
+    "TAY","LDA","TAX",NULL,"LDY","LDA","LDX",NULL,
+    "BCS","LDA",NULL,NULL,"LDY","LDA","LDX",NULL,
+    "CLV","LDA","TSX",NULL,"LDY","LDA","LDX",NULL,
+    "CPY","CMP","NOP",NULL,"CPY","CMP","DEC",NULL,
+    "INY","CMP","DEX",NULL,"CPY","CMP","DEC",NULL,
+    "BNE","CMP",NULL,NULL,"NOP","CMP","DEC",NULL,
+    "CLD","CMP","NOP",NULL,"NOP","CMP","DEC",NULL,
+    "CPX","SBC","NOP",NULL,"CPX","SBC","INC",NULL,
+    "INX","SBC","NOP","SBC","CPX","SBC","INC",NULL,
+    "BEQ","SBC",NULL,NULL,"NOP","SBC","INC",NULL,
+    "SED","SBC","NOP",NULL,"NOP","SBC","INC",NULL,
+};
+// clang-format on
+
+// clang-format off
+static const char *address_mode_name[256] = {
+    "IMP","IDX",NULL,NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","ACC",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY",NULL,NULL,"ABX","ABX","ABX",NULL,
+    "ABS","IDX",NULL,NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","ACC",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY",NULL,NULL,"ABX","ABX","ABX",NULL,
+    "IMP","IDX",NULL,NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","ACC",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY",NULL,NULL,"ABX","ABX","ABX",NULL,
+    "IMP","IDX",NULL,NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","ACC",NULL,"IND","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY",NULL,NULL,"ABX","ABX","ABX",NULL,
+    "IMM","IDX","IMM",NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","IMP",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPY",NULL,
+    "IMP","ABY","IMP",NULL,NULL,"ABX",NULL,NULL,
+    "IMM","IDX","IMM",NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","IMP",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPY",NULL,
+    "IMP","ABY","IMP",NULL,"ABX","ABX","ABY",NULL,
+    "IMM","IDX",NULL,NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","IMP",NULL,"ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY","IMP",NULL,"ABX","ABX","ABX",NULL,
+    "IMM","IDX","IMM",NULL,"ZPG","ZPG","ZPG",NULL,
+    "IMP","IMM","IMP","IMM","ABS","ABS","ABS",NULL,
+    "REL","IDY",NULL,NULL,"ZPX","ZPX","ZPX",NULL,
+    "IMP","ABY","IMP",NULL,"ABX","ABX","ABX",NULL,
+};
+// clang-format on
+
 void init_cpu(console_t *console, cpu_t *cpu)
 {
     // clang-format off
@@ -140,68 +214,55 @@ void set_address_modes(cpu_t *cpu)
     switch (cpu->mode)
     {
     case ABSOLUTE:
-        LOG_DEBUG("ABSOLUTE");
         cpu->address = read_address(cpu, cpu->PC + 1);
         return;
     case ABSOLUTE_X:
-        LOG_DEBUG("ABSOLUTE_X");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->X);
         return;
 
     case ABSOLUTE_Y:
-        LOG_DEBUG("ABSOLUTE_Y");
         cpu->address = page_crossed(cpu, read_address(cpu, cpu->PC + 1) + cpu->Y);
         return;
 
     case ACCUMULATOR:
-        LOG_DEBUG("ACCUMULATOR");
         cpu->address = 0;
         return;
 
     case IMMEDIATE:
-        LOG_DEBUG("IMMEDIATE");
         cpu->address = cpu->PC + 1;
         return;
 
     case IMPLIED:
-        LOG_DEBUG("IMPLIED");
         cpu->address = 0;
         return;
 
     case INDEXED_INDIRECT:
-        LOG_DEBUG("INDEXED_INDIRECT");
         cpu->address = read_address(cpu, cpu->read(cpu->PC + 1, cpu->console) + cpu->X);
         return;
 
     case INDIRECT:
-        LOG_DEBUG("INDIRECT");
         cpu->address = read_address(cpu, read_address(cpu, cpu->PC + 1));
         break;
 
     case INDIRECT_INDEXED:
-        LOG_DEBUG("INDIRECT_INDEXED");
         cpu->address = page_crossed(
             cpu,
             read_address(cpu, cpu->read(cpu->PC + 1, cpu->console)) + cpu->Y);
         return;
 
     case RELATIVE:
-        LOG_DEBUG("RELATIVE");
         cpu->address = 0;
         return;
 
     case ZERO_PAGE:
-        LOG_DEBUG("ZERO_PAGE");
         cpu->address = cpu->read(cpu->PC + 1, cpu->console);
         return;
 
     case ZERO_PAGE_X:
-        LOG_DEBUG("ZERO_PAGE_X");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->X) % 0x00FF;
         return;
 
     case ZERO_PAGE_Y:
-        LOG_DEBUG("ZERO_PAGE_Y");
         cpu->address = (cpu->read(cpu->PC + 1, cpu->console) + cpu->Y) % 0x00FF;
         return;
 
@@ -212,8 +273,6 @@ void set_address_modes(cpu_t *cpu)
 
 void run_instructions(cpu_t *cpu)
 {
-    LOG_DEBUG("--- CPU START CYCLE ---", cpu->address);
-
     if (!cpu->delay_I)
     {
         cpu->I = cpu->temp_I;
@@ -237,24 +296,20 @@ void run_instructions(cpu_t *cpu)
         instruction(cpu);
     }
 
-    LOG_DEBUG("address: %#X", cpu->address);
-    LOG_DEBUG("opcode: %#X", cpu->opcode);
-    LOG_DEBUG("size: %#X", cpu->instructions_sizes[cpu->opcode]);
-    LOG_DEBUG("cycles: %#X", cpu->cycles);
-    LOG_DEBUG("register-PC: %#X", cpu->PC);
-    LOG_DEBUG("register-SP: %#X", cpu->SP);
-    LOG_DEBUG("register-A: %#X", cpu->A);
-    LOG_DEBUG("register-X: %#X", cpu->X);
-    LOG_DEBUG("register-Y: %#X", cpu->Y);
-    LOG_DEBUG("register(flag)-Z: %#X", cpu->Z);
-    LOG_DEBUG("register(flag)-N: %#X", cpu->N);
-    LOG_DEBUG("register(flag)-C: %#X", cpu->C);
-    LOG_DEBUG("register(flag)-V: %#X", cpu->V);
-    LOG_DEBUG("register(flag)-I: %#X", cpu->I);
-    LOG_DEBUG("register(flag)-B: %#X", cpu->B);
-    LOG_DEBUG("register(flag)-D: %#X", cpu->D);
-    LOG_DEBUG("mem-%d: %#X", cpu->address, cpu->read(cpu->address, cpu->console));
-    LOG_DEBUG("--- CPU END CYCLE ---\n", cpu->address);
+    LOG_DEBUG(
+        "[CPU] %04X  %s %s %04X 0x%02X  A:%02X X:%02X Y:%02X SP:%02X P:%d|%d|%d|%d|%d|%d|%d(n,v,b,d,i,z,c) CYC:%d",
+        cpu->PC,
+        instructions_names[cpu->opcode],
+        address_mode_name[cpu->opcode],
+        cpu->address,
+        cpu->read(cpu->address, cpu->console),
+        cpu->A,
+        cpu->X,
+        cpu->Y,
+        cpu->SP,
+        cpu->N, cpu->V, cpu->B, cpu->D, cpu->I, cpu->Z, cpu->C,
+        cpu->cycles
+    );
 }
 
 // -----------------------------
@@ -284,23 +339,10 @@ uint16_t page_crossed(cpu_t *cpu, uint16_t new_address)
 {
     if ((new_address & 0xFF00) != (cpu->address & 0xFF00))
     {
-        LOG_DEBUG("CROSSED PAGE");
         cpu->cycles++;
     }
 
     return new_address;
-}
-
-// -----------------------------
-// DEBUG
-// -----------------------------
-
-void print_binary(uint8_t value)
-{
-    for (int i = 7; i >= 0; i--)
-    {
-        LOG_DEBUG("%d", value >> i & 0x01);
-    }
 }
 
 // -----------------------------
@@ -309,7 +351,6 @@ void print_binary(uint8_t value)
 
 void lda(cpu_t *cpu)
 {
-    LOG_DEBUG("LDA");
     cpu->A = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -318,13 +359,11 @@ void lda(cpu_t *cpu)
 
 void sta(cpu_t *cpu)
 {
-    LOG_DEBUG("STA");
     cpu->write(cpu->address, cpu->A, cpu->console);
 }
 
 void ldx(cpu_t *cpu)
 {
-    LOG_DEBUG("LDX");
     cpu->X = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->X == 0;
@@ -333,13 +372,11 @@ void ldx(cpu_t *cpu)
 
 void stx(cpu_t *cpu)
 {
-    LOG_DEBUG("STX");
     cpu->write(cpu->address, cpu->X, cpu->console);
 }
 
 void ldy(cpu_t *cpu)
 {
-    LOG_DEBUG("LDY");
     cpu->Y = cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->Y == 0;
@@ -348,7 +385,6 @@ void ldy(cpu_t *cpu)
 
 void sty(cpu_t *cpu)
 {
-    LOG_DEBUG("STY");
     cpu->write(cpu->address, cpu->Y, cpu->console);
 }
 
@@ -358,7 +394,6 @@ void sty(cpu_t *cpu)
 
 void tax(cpu_t *cpu)
 {
-    LOG_DEBUG("TAX");
     cpu->X = cpu->A;
 
     cpu->Z = cpu->X == 0;
@@ -367,7 +402,6 @@ void tax(cpu_t *cpu)
 
 void txa(cpu_t *cpu)
 {
-    LOG_DEBUG("TXA");
     cpu->A = cpu->X;
 
     cpu->Z = cpu->A == 0;
@@ -376,7 +410,6 @@ void txa(cpu_t *cpu)
 
 void tay(cpu_t *cpu)
 {
-    LOG_DEBUG("TAY");
     cpu->Y = cpu->A;
 
     cpu->Z = cpu->Y == 0;
@@ -385,7 +418,6 @@ void tay(cpu_t *cpu)
 
 void tya(cpu_t *cpu)
 {
-    LOG_DEBUG("TYA");
     cpu->A = cpu->Y;
 
     cpu->Z = cpu->A == 0;
@@ -398,7 +430,6 @@ void tya(cpu_t *cpu)
 
 void adc(cpu_t *cpu)
 {
-    LOG_DEBUG("ADC");
     int16_t result = cpu->A + cpu->read(cpu->address, cpu->console) + cpu->C;
     cpu->C = result > 0xFF;
     cpu->V = (result ^ cpu->A) & (result ^ cpu->read(cpu->address, cpu->console)) & 0x80;
@@ -410,7 +441,6 @@ void adc(cpu_t *cpu)
 
 void sbc(cpu_t *cpu)
 {
-    LOG_DEBUG("SBC");
     int16_t result = cpu->A - cpu->read(cpu->address, cpu->console) - !cpu->C;
     cpu->C = !(result < 0);
     cpu->V = (result ^ cpu->A) & (result ^ ~cpu->read(cpu->address, cpu->console)) & 0x80;
@@ -422,7 +452,6 @@ void sbc(cpu_t *cpu)
 
 void inc(cpu_t *cpu)
 {
-    LOG_DEBUG("INC");
     int16_t result = cpu->read(cpu->address, cpu->console) + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -432,7 +461,6 @@ void inc(cpu_t *cpu)
 
 void dec(cpu_t *cpu)
 {
-    LOG_DEBUG("DEC");
     int16_t result = cpu->read(cpu->address, cpu->console) - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -442,7 +470,6 @@ void dec(cpu_t *cpu)
 
 void inx(cpu_t *cpu)
 {
-    LOG_DEBUG("INX");
     int16_t result = cpu->X + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -452,7 +479,6 @@ void inx(cpu_t *cpu)
 
 void dex(cpu_t *cpu)
 {
-    LOG_DEBUG("DEX");
     int16_t result = cpu->X - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -462,7 +488,6 @@ void dex(cpu_t *cpu)
 
 void iny(cpu_t *cpu)
 {
-    LOG_DEBUG("INY");
     int16_t result = cpu->Y + 1;
     cpu->Z = (uint8_t)result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -472,7 +497,6 @@ void iny(cpu_t *cpu)
 
 void dey(cpu_t *cpu)
 {
-    LOG_DEBUG("DEY");
     int16_t result = cpu->Y - 1;
     cpu->Z = result == 0;
     cpu->N = result >> 7 & 0x1;
@@ -486,8 +510,6 @@ void dey(cpu_t *cpu)
 
 void asl(cpu_t *cpu)
 {
-    LOG_DEBUG("ASL");
-
     if (cpu->mode == ACCUMULATOR)
     {
         int16_t result = cpu->A << 1;
@@ -509,8 +531,6 @@ void asl(cpu_t *cpu)
 
 void lsr(cpu_t *cpu)
 {
-    LOG_DEBUG("LSR");
-
     if (cpu->mode == ACCUMULATOR)
     {
         int16_t result = cpu->A >> 1;
@@ -532,8 +552,6 @@ void lsr(cpu_t *cpu)
 
 void rol(cpu_t *cpu)
 {
-    LOG_DEBUG("ROL");
-
     if (cpu->mode == ACCUMULATOR)
     {
         uint8_t result = cpu->A << 1 | cpu->C;
@@ -556,8 +574,6 @@ void rol(cpu_t *cpu)
 
 void ror(cpu_t *cpu)
 {
-    LOG_DEBUG("ROR");
-
     if (cpu->mode == ACCUMULATOR)
     {
         uint8_t result = cpu->A >> 1 | cpu->C << 7;
@@ -584,7 +600,6 @@ void ror(cpu_t *cpu)
 
 void and(cpu_t *cpu)
 {
-    LOG_DEBUG("AND");
     cpu->A &= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -593,7 +608,6 @@ void and(cpu_t *cpu)
 
 void ora(cpu_t *cpu)
 {
-    LOG_DEBUG("ORA");
     cpu->A |= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -602,7 +616,6 @@ void ora(cpu_t *cpu)
 
 void eor(cpu_t *cpu)
 {
-    LOG_DEBUG("EOR");
     cpu->A ^= cpu->read(cpu->address, cpu->console);
 
     cpu->Z = cpu->A == 0;
@@ -611,7 +624,6 @@ void eor(cpu_t *cpu)
 
 void bit(cpu_t *cpu)
 {
-    LOG_DEBUG("BIT");
     uint8_t result = cpu->A & cpu->read(cpu->address, cpu->console);
 
     cpu->Z = result == 0;
@@ -625,7 +637,6 @@ void bit(cpu_t *cpu)
 
 void cmp(cpu_t *cpu)
 {
-    LOG_DEBUG("CMP");
     uint8_t result = cpu->A - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->A >= cpu->read(cpu->address, cpu->console);
@@ -635,7 +646,6 @@ void cmp(cpu_t *cpu)
 
 void cpx(cpu_t *cpu)
 {
-    LOG_DEBUG("CPX");
     uint8_t result = cpu->X - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->X >= cpu->read(cpu->address, cpu->console);
@@ -645,7 +655,6 @@ void cpx(cpu_t *cpu)
 
 void cpy(cpu_t *cpu)
 {
-    LOG_DEBUG("CPY");
     uint8_t result = cpu->Y - cpu->read(cpu->address, cpu->console);
 
     cpu->C = cpu->Y >= cpu->read(cpu->address, cpu->console);
@@ -659,8 +668,6 @@ void cpy(cpu_t *cpu)
 
 void bcc(cpu_t *cpu)
 {
-    LOG_DEBUG("BCC");
-
     if (!cpu->C)
     {
         cpu->cycles++;
@@ -672,8 +679,6 @@ void bcc(cpu_t *cpu)
 
 void bcs(cpu_t *cpu)
 {
-    LOG_DEBUG("BSC");
-
     if (cpu->C)
     {
         cpu->cycles++;
@@ -685,8 +690,6 @@ void bcs(cpu_t *cpu)
 
 void beq(cpu_t *cpu)
 {
-    LOG_DEBUG("BEQ");
-
     if (cpu->Z)
     {
         cpu->cycles++;
@@ -698,8 +701,6 @@ void beq(cpu_t *cpu)
 
 void bne(cpu_t *cpu)
 {
-    LOG_DEBUG("BNE");
-
     if (!cpu->Z)
     {
         cpu->cycles++;
@@ -711,8 +712,6 @@ void bne(cpu_t *cpu)
 
 void bpl(cpu_t *cpu)
 {
-    LOG_DEBUG("BPL");
-
     if (!cpu->N)
     {
         cpu->cycles++;
@@ -724,8 +723,6 @@ void bpl(cpu_t *cpu)
 
 void bmi(cpu_t *cpu)
 {
-    LOG_DEBUG("BMI");
-
     if (cpu->N)
     {
         cpu->cycles++;
@@ -737,8 +734,6 @@ void bmi(cpu_t *cpu)
 
 void bvc(cpu_t *cpu)
 {
-    LOG_DEBUG("BVC");
-
     if (!cpu->V)
     {
         cpu->cycles++;
@@ -750,8 +745,6 @@ void bvc(cpu_t *cpu)
 
 void bvs(cpu_t *cpu)
 {
-    LOG_DEBUG("BVS");
-
     if (cpu->V)
     {
         cpu->cycles++;
@@ -767,14 +760,11 @@ void bvs(cpu_t *cpu)
 
 void jmp(cpu_t *cpu)
 {
-    LOG_DEBUG("JUMP");
     cpu->PC = cpu->address;
 }
 
 void jsr(cpu_t *cpu)
 {
-    LOG_DEBUG("JSR");
-
     uint8_t low = (cpu->PC - 1) & 0xFF;
     uint8_t high = ((cpu->PC - 1) >> 8) & 0xFF;
 
@@ -786,8 +776,6 @@ void jsr(cpu_t *cpu)
 
 void rts(cpu_t *cpu)
 {
-    LOG_DEBUG("RTS");
-
     uint8_t low = stack_pull(cpu);
     uint8_t high = stack_pull(cpu);
 
@@ -797,8 +785,6 @@ void rts(cpu_t *cpu)
 
 void brk(cpu_t *cpu)
 {
-    LOG_DEBUG("BRK");
-
     uint8_t high = (cpu->PC >> 8) & 0xFF;
     uint8_t low = (cpu->PC) & 0xFF;
     uint8_t P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
@@ -807,9 +793,6 @@ void brk(cpu_t *cpu)
     stack_push(cpu, low);
     stack_push(cpu, P);
 
-    LOG_DEBUG("register(flags)-P: ");
-    print_binary(P);
-
     cpu->PC = read_address(cpu, 0xFFFE);
 
     cpu->temp_I = true;
@@ -817,14 +800,9 @@ void brk(cpu_t *cpu)
 
 void rti(cpu_t *cpu)
 {
-    LOG_DEBUG("RTI");
-
     uint8_t P = stack_pull(cpu);
     uint8_t low = stack_pull(cpu);
     uint8_t high = stack_pull(cpu);
-
-    LOG_DEBUG("register(flags)-P: ");
-    print_binary(P);
 
     cpu->PC = high << 8 | low;
 
@@ -842,13 +820,11 @@ void rti(cpu_t *cpu)
 
 void pha(cpu_t *cpu)
 {
-    LOG_DEBUG("PHA");
     stack_push(cpu, cpu->A);
 }
 
 void pla(cpu_t *cpu)
 {
-    LOG_DEBUG("PLA");
     cpu->A = stack_pull(cpu);
 
     cpu->Z = cpu->A == 0;
@@ -857,23 +833,13 @@ void pla(cpu_t *cpu)
 
 void php(cpu_t *cpu)
 {
-    LOG_DEBUG("PHP");
-
     uint8_t P = cpu->N << 7 | cpu->V << 6 | 1 << 5 | 1 << 4 | cpu->D << 3 | cpu->I << 2 | cpu->Z << 1 | cpu->C;
     stack_push(cpu, P);
-
-    LOG_DEBUG("register(flags)-P: ");
-    print_binary(P);
 }
 
 void plp(cpu_t *cpu)
 {
-    LOG_DEBUG("PLP");
-
     uint8_t P = stack_pull(cpu);
-
-    LOG_DEBUG("register(flags)-P: ");
-    print_binary(P);
 
     cpu->N = P >> 7 & 0x01;
     cpu->V = P >> 6 & 0x01;
@@ -886,13 +852,11 @@ void plp(cpu_t *cpu)
 
 void txs(cpu_t *cpu)
 {
-    LOG_DEBUG("TXS");
     cpu->SP = cpu->X;
 }
 
 void tsx(cpu_t *cpu)
 {
-    LOG_DEBUG("TSX");
     cpu->X = cpu->SP;
 
     cpu->Z = cpu->X == 0;
@@ -905,45 +869,38 @@ void tsx(cpu_t *cpu)
 
 void clc(cpu_t *cpu)
 {
-    LOG_DEBUG("CLC");
     cpu->C = false;
 }
 
 void sec(cpu_t *cpu)
 {
-    LOG_DEBUG("SEC");
     cpu->C = true;
 }
 
 void cli(cpu_t *cpu)
 {
-    LOG_DEBUG("CLI");
     cpu->temp_I = false;
     cpu->delay_I = true;
 }
 
 void sei(cpu_t *cpu)
 {
-    LOG_DEBUG("SEI");
     cpu->temp_I = true;
     cpu->delay_I = true;
 }
 
 void cld(cpu_t *cpu)
 {
-    LOG_DEBUG("CLD");
     cpu->D = false;
 }
 
 void sed(cpu_t *cpu)
 {
-    LOG_DEBUG("SED");
     cpu->D = true;
 }
 
 void clv(cpu_t *cpu)
 {
-    LOG_DEBUG("CLV");
     cpu->V = false;
 }
 
@@ -954,5 +911,4 @@ void clv(cpu_t *cpu)
 void nop(cpu_t *cpu)
 {
     (void)cpu;
-    LOG_DEBUG("NOP");
 }
