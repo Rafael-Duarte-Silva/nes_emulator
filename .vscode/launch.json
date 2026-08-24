@@ -7,7 +7,7 @@
             "request": "launch",
             "program": "${workspaceFolder}/bin/main",
             "args": [
-                "${workspaceFolder}/programs/instr_misc.nes",
+                "${workspaceFolder}/programs/nestest.nes",
             ],
             "cwd": "${workspaceFolder}",
             "MIMode": "gdb",
