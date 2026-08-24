@@ -9,7 +9,7 @@ void ppu_bus_write(uint16_t address, uint8_t data, console_t *console)
 
     if (address < 0x3F00)
     {
-        console->VRAM[address % 0x3000] = data;
+        console->VRAM[address % 0x0800] = data;
     }
 }
 
@@ -22,6 +22,6 @@ uint8_t ppu_bus_read(uint16_t address, console_t *console)
 
     if (address < 0x3F00)
     {
-        return console->VRAM[address % 0x3000];
+        return console->VRAM[address % 0x0800];
     }
 }

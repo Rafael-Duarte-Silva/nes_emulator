@@ -285,16 +285,7 @@ void run_instructions(cpu_t *cpu)
     cpu->opcode = cpu->read(cpu->PC, cpu->console);
     cpu->mode = cpu->instructions_modes[cpu->opcode];
     cpu->cycles = cpu->instructions_cycles[cpu->opcode];
-
     set_address_modes(cpu);
-
-    cpu->PC += cpu->instructions_sizes[cpu->opcode];
-
-    void (*instruction)(struct cpu *cpu) = cpu->instructions[cpu->opcode];
-    if (instruction != NULL)
-    {
-        instruction(cpu);
-    }
 
     LOG_DEBUG(
         "[CPU] %04X  %s %s %04X 0x%02X  A:%02X X:%02X Y:%02X SP:%02X P:%d|%d|%d|%d|%d|%d|%d(n,v,b,d,i,z,c) CYC:%d",
@@ -310,6 +301,14 @@ void run_instructions(cpu_t *cpu)
         cpu->N, cpu->V, cpu->B, cpu->D, cpu->I, cpu->Z, cpu->C,
         cpu->cycles
     );
+
+    cpu->PC += cpu->instructions_sizes[cpu->opcode];
+
+    void (*instruction)(struct cpu *cpu) = cpu->instructions[cpu->opcode];
+    if (instruction != NULL)
+    {
+        instruction(cpu);
+    }
 }
 
 // -----------------------------
