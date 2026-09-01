@@ -40,6 +40,7 @@ typedef struct
 typedef struct ppu
 {
     console_t *console;
+    uint8_t io; // Open bus state
 
     uint16_t V; // Current VRAM address (15bits)
     uint16_t T; // Temporary VRAM address (15bits)
@@ -51,11 +52,15 @@ typedef struct ppu
     ppu_status_t status;
     uint8_t OAMADDR;
     uint8_t PPUSCROLL;
+    uint8_t PPUDATA; // Read buffer
 
-    uint8_t OAM[0xFF]; // sprite ram
+    uint8_t pallete_RAM[0x20];
+    uint8_t OAM[0xFF]; // Sprite RAM
 
     uint8_t (*read_registers)(uint16_t address, struct ppu *ppu);
     void (*write_registers)(uint16_t address, uint8_t data, struct ppu *ppu);
+    uint8_t (*read)(uint16_t address, console_t *console);
+    void (*write)(uint16_t address, uint8_t data, console_t *console);
 } ppu_t;
 
 void init_ppu(console_t *console, ppu_t *ppu);

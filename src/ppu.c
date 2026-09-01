@@ -11,6 +11,8 @@ void init_ppu(console_t *console, ppu_t *ppu)
 
     ppu->read_registers = read_registers;
     ppu->write_registers = write_registers;
+    ppu->read = ppu_bus_read;
+    ppu->write = ppu_bus_write;
 }
 
 void reset_ppu(ppu_t *ppu)
@@ -38,6 +40,7 @@ void reset_ppu(ppu_t *ppu)
 
     ppu->OAMADDR = 0;
     ppu->PPUSCROLL = 0;
+    ppu->PPUDATA = 0;
 }
 
 uint8_t read_registers(uint16_t address, ppu_t *ppu)
@@ -55,11 +58,13 @@ uint8_t read_registers(uint16_t address, ppu_t *ppu)
         break;
     }
 
-    return 0x00;
+    return ppu->io;
 }
 
 void write_registers(uint16_t address, uint8_t data, ppu_t *ppu)
 {
+    ppu->io = data;
+
     switch (address)
     {
     case 0x2000:
@@ -137,8 +142,13 @@ void ppu_mask(uint8_t data, ppu_t *ppu)
 uint8_t ppu_status(ppu_t *ppu)
 {
     ppu->W = 0;
-    uint8_t result = ppu->status.v_blank << 7 | ppu->status.sprite_0_hit << 6 | ppu->status.sprite_overflow << 5;
+    uint8_t result =
+        ppu->status.v_blank << 7 |
+        ppu->status.sprite_0_hit << 6 |
+        ppu->status.sprite_overflow << 5 |
+        (ppu->io & 0x1F);
     ppu->status.v_blank = false;
+    ppu->io |= result & 0xE0;
     return result;
 }
 
@@ -158,7 +168,9 @@ void oam_data_write(uint8_t data, ppu_t *ppu)
 // 0x2004
 uint8_t oam_data_read(ppu_t *ppu)
 {
-    return ppu->OAM[ppu->OAMADDR];
+    uint8_t data = ppu->OAM[ppu->OAMADDR];
+    ppu->io = data;
+    return data;
 }
 
 // 0x2005
@@ -204,15 +216,16 @@ void ppu_addr(uint8_t address, ppu_t *ppu)
 // 0x2007
 void ppu_data_write(uint8_t data, ppu_t *ppu)
 {
-    ppu_bus_write(ppu->V, data, ppu->console);
+    ppu->write(ppu->V, data, ppu->console);
     ppu->V += get_increment_vram(ppu->ctrl.vram_address);
 }
 
 // 0x2007
 uint8_t ppu_data_read(ppu_t *ppu)
 {
-    const uint8_t data = ppu_bus_read(ppu->V, ppu->console);
+    const uint8_t data = ppu->PPUDATA;
+    ppu->PPUDATA = ppu->read(ppu->V, ppu->console);
     ppu->V += get_increment_vram(ppu->ctrl.vram_address);
-
+    ppu->io = data;
     return data;
 }

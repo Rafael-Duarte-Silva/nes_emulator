@@ -11,6 +11,7 @@
  * ============================================================================
  */
 
+#include "console.h"
 #include "ppu.h"
 #include <assert.h>
 #include <stdint.h>
@@ -20,7 +21,7 @@
 // MOCKS
 // -----------------------------
 
-static uint8_t memory[0x10000];
+static uint8_t memory[0x4000];
 
 void ppu_bus_write(uint16_t address, uint8_t data, console_t *console)
 {
@@ -60,6 +61,9 @@ static uint8_t read_test_memory(uint16_t address)
 
 static void ppu_test_init(ppu_t *ppu)
 {
+    ppu->read = ppu_bus_read;
+    ppu->write = ppu_bus_write;
+
     reset_ppu(ppu);
 }
 
@@ -115,6 +119,7 @@ static void test_ppu_status(void)
 
     assert(ppu.W == 0);
     assert(ppu.status.v_blank == false);
+    assert(ppu.io == 0xE0);
     assert(result == 0xE0);
 }
 
@@ -151,6 +156,7 @@ static void test_oam_data_read(void)
 
     uint8_t result = oam_data_read(&ppu);
 
+    assert(ppu.io == 0xC0);
     assert(result == 0xC0);
 }
 
@@ -238,10 +244,13 @@ static void test_ppu_data_read(void)
 
     write_test_memory(0x00, 0xC0);
 
+    uint8_t buffer = ppu_data_read(&ppu);
     uint8_t result = ppu_data_read(&ppu);
 
+    assert(buffer == 0x00);
+    assert(ppu.io == 0xC0);
     assert(result == 0xC0);
-    assert(ppu.V == 0x01);
+    assert(ppu.V == 0x02);
 }
 
 int main(void)
